@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql2": "^3.14.5",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "jest": "^30.1.3"
+  },
+  "name": "reparaai",
+  "version": "1.0.0",
+  "description": "Sistema Laboratório de engenharia de software",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node --watch app.js",
+    "test": "jest/test* --coverage"
+  },
+  "author": "Henrico Hosaki Silva",
+  "license": "ISC"
+}
