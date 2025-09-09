@@ -46,7 +46,7 @@ class UserController{
     async deleteUser(req,res){
         try{
             const { idUser } = req.params;
-            const deletedUser = await UserService.DeletedUser(idUser)
+            const deletedUser = await UserService.deleteUser(idUser)
             res.status(204).json({
                 Deleted: deletedUser
             })
@@ -62,7 +62,7 @@ class UserController{
             const { idUser } = req.params;
             const userData = req.body;
             await UserService.updateUser(idUser, userData);
-            const result = await serviceP.FindById(idUser);
+            const result = await UserService.findUserByPk(idUser);
             res.status(200).json({
                  Updated: result });
         }catch(e){

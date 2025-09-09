@@ -16,7 +16,7 @@ class UserService{
         }
     
         async deleteUser(idUser){
-            return await User.destroy({where: {idUser: idUser}})
+            return await User.destroy({where: {idUser} })
         }
         
         async updateUser(idUser, userData) {
