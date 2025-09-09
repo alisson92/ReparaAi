@@ -5,8 +5,8 @@ const UserControll = new UserController();
 
 router.get('/user/' , UserControll.findAllUsers)
 router.post('/user/' , UserControll.registerUser)
-router.get('/user/:id' , UserControll.findUserByPk)
-router.put('/user/:id' , UserControll.updateUser)
-router.delete('user/:id' , UserControll.deleteUser)
+router.get('/user/:idUser' , UserControll.findUserByPk)
+router.put('/user/:idUser' , UserControll.updateUser)
+router.delete('user/:idUser' , UserControll.deleteUser)
 
 module.exports = router;

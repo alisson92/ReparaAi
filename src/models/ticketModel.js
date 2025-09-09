@@ -16,6 +16,10 @@ class UserTicket{
                 type: database.db.Sequelize.TEXT,
                 allowNull: false
             },
+            userId:{
+                type: database.db.Sequelize.INTEGER,
+                allowNull: false
+            },
             email: {
                 type: database.db.Sequelize.STRING,
                 allowNull: false,

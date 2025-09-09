@@ -1,5 +1,5 @@
-const TickerSer = require('../services/ticketService');
-const TicketService = new TickerSer()
+const TicketSer = require('../services/ticketService');
+const TicketService = new TicketSer()
 
 class TicketController{
     
@@ -47,8 +47,8 @@ class TicketController{
     async deleteTicket(req,res){
         try{
             const { idTicket } = req.params;
-            const deletedTicket = await TicketService.deleteTicket(idTicket)
-            res.status(204).json({
+            const deletedTicket = await TicketService.deleteTicket(idTicket);
+            res.status(200).json({
                 Deleted: deletedTicket
             })
         }catch(e){
@@ -62,8 +62,8 @@ class TicketController{
         try{
             const { idTicket } = req.params;
             const ticketData = req.body;
-            await ticketService.updateTicket(idTicket, ticketData);
-            const result = await serviceP.FindById(idTicket);
+            await TicketService.updateTicket(idTicket, ticketData);
+            const result = await TicketService.findTicketByPk(idTicket);
             res.status(200).json({
                 Updated: result
              });

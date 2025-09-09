@@ -18,20 +18,24 @@ class UserModel{
                 validate: {isEmail: true}
             },
             cpf:{
-                type: database.db.Sequelize.INTEGER,
+                type: database.db.Sequelize.STRING,
                 unique: true,
                 allowNull: false
             },
             phone:{
-                type: database.db.Sequelize.INTEGER,
+                type: database.db.Sequelize.STRING,
                 allowNull: false
             },
             birthDate: {
                 type: database.db.Sequelize.DATE,
                 allowNull: false
             },
-            localization: {
-                type: database.db.Sequelize.STRING,
+            localization_lat: {
+                type: database.db.Sequelize.DECIMAL(10,8),
+                allowNull: false
+            },
+             localization_lon: {
+                type: database.db.Sequelize.DECIMAL(10,8),
                 allowNull: false
             }
         })

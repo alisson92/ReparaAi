@@ -4,7 +4,7 @@ const User = require ('../models/userModel');
 class UserService{
     
         async findAllUsers(){
-            return await User.findAllUsers()
+            return await User.findAll()
         }
     
         async findUserByPk(idUser){
@@ -16,12 +16,12 @@ class UserService{
         }
     
         async deleteUser(idUser){
-            return await User.destroy(idUser)
+            return await User.destroy({where: {idUser: idUser}})
         }
         
         async updateUser(idUser, userData) {
-  return await User.update(userData, { where: { idUser } });
-        }
+            return await User.update(userData, { where: { idUser } });
     }
+}
 
 module.exports = UserService;
