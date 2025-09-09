@@ -1,7 +1,7 @@
-const User = require ('../models/userModel');
-const Ticket = require ('../models/ticketModel');
+const User = require('./userModel');
+const Ticket = require('./ticketModel');
 
-User.hasMany(ticket, {foreignKey: 'userId', as: 'Tickets'})
-Ticket.belongsTo(user, {foreignKey: 'ticketId', as: 'Users'})
+User.hasMany(Ticket, {foreignKey: 'idUser', as: 'tickets'})
+Ticket.belongsTo(User, {foreignKey: 'idUser', as: 'user'})
 
 module.exports = { User, Ticket };
