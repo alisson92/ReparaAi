@@ -2,6 +2,9 @@ const UserSer = require('../services/userService');
 const UserService = new UserSer();
 class UserController{
     
+    /**
+     *@async
+     */
     async findAllUsers(req,res){
         try{
             const findAll = await UserService.findAllUsers();
@@ -21,6 +24,11 @@ class UserController{
         }
     }
 
+    /**
+     * @async
+     * @param { idUser } req.params
+     */
+     
     async findUserByPk(req,res){
         try{
             const { idUser } = req.params;
@@ -41,6 +49,10 @@ class UserController{
         }
     }
 
+    /**
+     * @async
+     * @param { userData } req.body
+     */
     async registerUser(req,res){
         try{
             const userData = req.body;
@@ -56,6 +68,10 @@ class UserController{
         }
     }
 
+    /**
+     * @async
+     * @param { idUser } req.params
+     */
     async deleteUser(req,res){
         try{
             const { idUser } = req.params;
@@ -76,6 +92,10 @@ class UserController{
         }
     }
 
+    /**
+     * @param { idUser } req.params
+     * @param { userData } req.body
+     */
     async updateUser(req,res){
         try{
             const { idUser } = req.params;

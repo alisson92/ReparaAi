@@ -3,6 +3,9 @@ const TicketService = new TicketSer()
 
 class TicketController{
     
+    /**
+    * @async
+    */
     async findAllTickets(req,res){
         try{
             const findAll = await TicketService.findAllTickets();
@@ -21,6 +24,10 @@ class TicketController{
         }
     }
 
+    /**
+     * @async
+     * @param { idTicket } req.params
+     */
     async findTicketByPk(req,res){
         try{
             const { idTicket } = req.params;
@@ -41,6 +48,10 @@ class TicketController{
         }
     }
 
+    /**
+     * @async
+     * @param { ticketData } req.body
+     */
     async createTicket(req,res){
         try{
             const ticketData = req.body;
@@ -55,6 +66,10 @@ class TicketController{
         }
     }
 
+    /**
+     * @async
+     * @param { idTicket } req.params
+     */
     async deleteTicket(req,res){
         try{
             const { idTicket } = req.params;
@@ -75,6 +90,10 @@ class TicketController{
         }
     }
 
+    /**
+     * @param { idTicket } req.params
+     * @param { ticketData } req.body
+     */
     async updateTicket(req,res){
         try{
             const { idTicket } = req.params;
