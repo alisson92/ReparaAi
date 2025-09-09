@@ -6,8 +6,8 @@ const ticketsRouter = require('./routes/ticketRoute');
 const app = express();
 const port = 3000;
 
-require('./models/UserModel');
-require('./models/TicketModel');
+require('./models/userModel');
+require('./models/ticketModel');
 
 app.use(express.json());
 app.use(userRouter);
@@ -18,7 +18,7 @@ app.use((req, res) => {
 });
 
 database.db
-    .sync({ force: true }) // alter: true se quiser atualizar tabelas sem perder dados
+    .sync({ force: false }) // alter: true se quiser atualizar tabelas sem perder dados
     .then(() => {
         app.listen(port, () => {
             console.log('Server running in ' + port);

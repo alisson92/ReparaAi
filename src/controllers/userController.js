@@ -1,10 +1,10 @@
-const UserService = require ('../services/userService');
-
+const UserSer = require('../services/userService');
+const UserService = new UserSer();
 class UserController{
     
     async findAllUsers(req,res){
         try{
-            const findAll = UserService.findAll();
+            const findAll = await UserService.findAllUsers();
             res.status(200).json({
                 Users: findAll
             })
@@ -17,7 +17,7 @@ class UserController{
 
     async findUserByPk(req,res){
         try{
-            const { idUser } = req.params.id;
+            const { idUser } = req.params;
             const userData = await UserService.findUserByPk(idUser);
             res.status(200).json({
                 User: userData
@@ -31,7 +31,7 @@ class UserController{
 
     async registerUser(req,res){
         try{
-            const userData = req.body
+            const userData = req.body;
             const userRegistered = await UserService.registerUser(userData);
             res.status(201).json({
                 Registered: userRegistered
@@ -45,8 +45,8 @@ class UserController{
 
     async deleteUser(req,res){
         try{
-            const { idUser } = req.params.id;
-            const deletedUser = UserService.DeletedUser(idUser)
+            const { idUser } = req.params;
+            const deletedUser = await UserService.DeletedUser(idUser)
             res.status(204).json({
                 Deleted: deletedUser
             })
@@ -59,9 +59,9 @@ class UserController{
 
     async updateUser(req,res){
         try{
-            const { idUser } = req.params.id;
+            const { idUser } = req.params;
             const userData = req.body;
-            await userData.updateTicket(idUser, userData);
+            await UserService.updateUser(idUser, userData);
             const result = await serviceP.FindById(idUser);
             res.status(200).json({
                  Updated: result });
