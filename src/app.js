@@ -16,7 +16,7 @@ app.use((req, res) => {
 });
 
 database.db
-    .sync({ force: true }) // alter: true se quiser atualizar tabelas sem perder dados
+    .sync({ force: false }) // alter: true se quiser atualizar tabelas sem perder dados
     .then(() => {
         app.listen(port, () => {
             console.log('Server running in ' + port);

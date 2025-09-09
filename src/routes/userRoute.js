@@ -7,6 +7,6 @@ router.get('/user/' , UserControll.findAllUsers)
 router.post('/user/' , UserControll.registerUser)
 router.get('/user/:idUser' , UserControll.findUserByPk)
 router.put('/user/:idUser' , UserControll.updateUser)
-router.delete('user/:idUser' , UserControll.deleteUser)
+router.delete('/user/:idUser' , UserControll.deleteUser)
 
 module.exports = router;
