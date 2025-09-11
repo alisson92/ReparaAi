@@ -1,19 +1,20 @@
+# Dockerfile
+
 FROM node:18-alpine
 
-# Diretório de trabalho dentro do container
 WORKDIR /usr/src/app
 
-# Copiar package.json e package-lock.json
+# Copia primeiro os arquivos de dependência para otimizar o cache
 COPY package*.json ./
 
-# Instalar dependências (inclui devDependencies, já que é ambiente de dev)
+# Instala TODAS as dependências listadas no package.json
 RUN npm install
 
-# Copiar todo o código da aplicação
+# Copia o resto do código
 COPY . .
 
-# Expor a porta que o backend usa
-EXPOSE 3000
+# Expõe a porta correta que você usa no docker-compose
+EXPOSE 3333
 
-# Comando padrão (rodar em modo dev com hot reload)
+# Comando para iniciar a aplicação
 CMD ["npm", "run", "dev"]

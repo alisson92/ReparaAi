@@ -1,22 +1,25 @@
-const { Sequelize } = require ("sequelize");
+const { Sequelize } = require("sequelize");
+// Adicione esta linha para carregar as variáveis do arquivo .env
+require('dotenv').config();
 
-class Database{
-    constructor(){
+class Database {
+    constructor() {
         this.init();
     }
 
-    init(){
-this.db = new Sequelize({
-  database: "reparaai",
-  host: "db",
-  username: "root",
-  password: "root",
-  dialect: "mysql",
-  port: 3306,
-  retry: {
-    max: 10 // tenta até 10 vezes antes de falhar
-  }
-});
+    init() {
+        this.db = new Sequelize({
+            // Agora ele lê as variáveis do .env
+            database: process.env.DB_NAME,
+            host: process.env.DB_HOST,
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            dialect: "mysql",
+            port: process.env.DB_PORT,
+            retry: {
+                max: 5 // tenta até 5 vezes antes de falhar
+            }
+        });
     }
 }
 

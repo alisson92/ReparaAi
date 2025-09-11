@@ -1,16 +1,12 @@
-version: '3.8'
-
 services:
   db:
-    image: mysql
+    image: mysql:8.0  # <-- MUITO IMPORTANTE: Fixar a versão
     restart: always
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: reparaai      # <-- Altere aqui
-      MYSQL_USER: root
-      MYSQL_PASSWORD: senha         # <-- Altere aqui
-      MYSQL_ROOT_PASSWORD: senha    # <-- Altere aqui
+      MYSQL_DATABASE: reparaai
+      MYSQL_ROOT_PASSWORD: senha # <-- Esta é a única variável necessária para a senha do root
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -23,10 +19,10 @@ services:
       - "3333:3333"
     depends_on:
       - db
-    env_file:                           # <-- Adicione estas linhas
-      - ./.env                          # <-- para carregar as variáveis
+    env_file:
+      - ./.env
     volumes:
-      - ./src:/usr/src/app
+      - .:/usr/src/app
       - /usr/src/app/node_modules
     networks:
       - reparai-net
