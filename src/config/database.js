@@ -6,13 +6,17 @@ class Database{
     }
 
     init(){
-        this.db = new Sequelize({
-            database: "reparaai",
-            host: "reparai-db",
-            username: "root",
-            dialect: "mysql",
-            password: "root"
-        });
+this.db = new Sequelize({
+  database: "reparaai",
+  host: "db",
+  username: "root",
+  password: "root",
+  dialect: "mysql",
+  port: 3306,
+  retry: {
+    max: 10 // tenta até 10 vezes antes de falhar
+  }
+});
     }
 }
 
