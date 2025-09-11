@@ -8,10 +8,10 @@ class Database{
     init(){
         this.db = new Sequelize({
             database: "reparaai",
-            host: "localhost",
+            host: "reparai-db",
             username: "root",
             dialect: "mysql",
-            password: ""
+            password: "root"
         });
     }
 }
