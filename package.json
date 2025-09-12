@@ -10,9 +10,9 @@
   "name": "reparaai",
   "version": "1.0.0",
   "description": "Sistema Laboratório de engenharia de software",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "dev": "node --watch app.js",
+    "dev": "node --watch src/app.js",
     "test": "jest/test* --coverage"
   },
   "author": "Henrico Hosaki Silva",
