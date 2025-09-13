@@ -1,12 +1,9 @@
+# ReparaAi/docker-compose.yml
+
 services:
   db:
     image: mysql:8.0
     restart: always
-    # We don't need to expose the port to the host machine unless you
-    # want to connect from your local computer with a tool like DBeaver.
-    # It's slightly more secure to keep it internal.
-    # ports:
-    #   - "3306:3306"
     environment:
       MYSQL_DATABASE: reparaai
       MYSQL_ROOT_PASSWORD: senha
@@ -14,7 +11,6 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - reparai-net
-    # This block tells Docker to wait until MySQL is ready for connections
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -22,20 +18,36 @@ services:
       start_period: 10s
 
   backend:
-    build: .
+    build:
+      context: ./backend
     restart: always
     ports:
-      - "3000:3000"
+      - "3333:3333"
     depends_on:
-      db: # <-- Change this to the new format
-        condition: service_healthy # <-- Wait for the health check to pass
+      db:
+        condition: service_healthy
     env_file:
-      - ./.env
+      - ./backend/.env
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     networks:
       - reparai-net
+
+  # --- NOSSO NOVO SERVIÇO DE FRONTEND ---
+  frontend:
+    build:
+      context: ./frontend # 1. Constrói a imagem usando o Dockerfile da pasta /frontend
+    restart: always
+    ports:
+      - "5174:5173" # 2. Mapeia a porta 5174 da sua máquina para a porta 5173 do contêiner
+    volumes:
+      - ./frontend:/usr/src/app # 3. Mapeia o código local para que o hot-reload funcione
+      - /usr/src/app/node_modules
+    networks:
+      - reparai-net
+    depends_on:
+      - backend # 4. Garante que o frontend só suba depois do backend
 
 volumes:
   db_data:
