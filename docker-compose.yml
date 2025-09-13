@@ -1,0 +1,57 @@
+# ReparaAi/docker-compose.yml
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: reparaai
+      MYSQL_ROOT_PASSWORD: senha
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - reparai-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - reparai-net
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - reparai-net
+    depends_on:
+      - backend
+    command: ["npm", "run", "dev", "--", "--host", "--port", "5173"]
+
+volumes:
+  db_data:
+
+networks:
+  reparai-net:
+    driver: bridge
