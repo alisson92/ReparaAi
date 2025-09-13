@@ -1,12 +1,9 @@
+# ReparaAi/docker-compose.yml
+
 services:
   db:
     image: mysql:8.0
     restart: always
-    # We don't need to expose the port to the host machine unless you
-    # want to connect from your local computer with a tool like DBeaver.
-    # It's slightly more secure to keep it internal.
-    # ports:
-    #   - "3306:3306"
     environment:
       MYSQL_DATABASE: reparaai
       MYSQL_ROOT_PASSWORD: senha
@@ -14,7 +11,6 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - reparai-net
-    # This block tells Docker to wait until MySQL is ready for connections
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -22,20 +18,36 @@ services:
       start_period: 10s
 
   backend:
-    build: .
+    build:
+      context: ./backend
     restart: always
     ports:
       - "3000:3000"
     depends_on:
-      db: # <-- Change this to the new format
-        condition: service_healthy # <-- Wait for the health check to pass
+      db:
+        condition: service_healthy
     env_file:
-      - ./.env
+      - ./backend/.env
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     networks:
       - reparai-net
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - reparai-net
+    depends_on:
+      - backend
+    command: ["npm", "run", "dev", "--", "--host", "--port", "5173"]
 
 volumes:
   db_data:
