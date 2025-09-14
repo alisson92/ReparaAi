@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import CadastroView from '@/views/CadastroView.vue'
 import SolicitacaoView from '@/views/SolicitacaoView.vue'
 import TicketDetailView from '@/views/TicketDetailView.vue'
+import TicketEditView from '@/views/TicketEditView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/solicitacao/:idTicket', // O :idTicket é o parâmetro dinâmico
       name: 'ticket-detalhes',
       component: TicketDetailView
+    },
+    {
+      path: '/solicitacao/:idTicket/edit',
+      name: 'ticket-editar',
+      component: TicketEditView
     }
   ]
 })
