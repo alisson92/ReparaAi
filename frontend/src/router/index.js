@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import CadastroView from '@/views/CadastroView.vue'
 import SolicitacaoView from '@/views/SolicitacaoView.vue'
+import TicketDetailView from '@/views/TicketDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,8 +21,12 @@ const router = createRouter({
       path: '/solicitacao',
       name: 'solicitacao',
       component: SolicitacaoView
+    },
+    {
+      path: '/solicitacao/:idTicket', // O :idTicket é o parâmetro dinâmico
+      name: 'ticket-detalhes',
+      component: TicketDetailView
     }
-    // O bloco da rota '/about' foi removido daqui
   ]
 })
 
