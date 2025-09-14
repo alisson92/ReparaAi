@@ -11,41 +11,39 @@
     </div>
 
     <div v-else class="tickets-list">
-      <div v-for="ticket in tickets" :key="ticket.idTicket" class="ticket-card">
-        <h2>{{ ticket.header }}</h2>
-        <p>{{ ticket.description }}</p>
-        <div class="ticket-footer">
-          <span>Enviado por: {{ ticket.email }}</span>
-          <span>Em: {{ new Date(ticket.createdAt).toLocaleDateString('pt-BR') }}</span>
+      <RouterLink 
+        v-for="ticket in tickets" 
+        :key="ticket.idTicket" 
+        :to="'/solicitacao/' + ticket.idTicket" 
+        class="ticket-link"
+      >
+        <div class="ticket-card">
+          <h2>{{ ticket.header }}</h2>
+          <p>{{ ticket.description }}</p>
+          <div class="ticket-footer">
+            <span>Enviado por: {{ ticket.email }}</span>
+            <span>Em: {{ new Date(ticket.createdAt).toLocaleDateString('pt-BR') }}</span>
+          </div>
         </div>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>
 
 <script setup>
-// 4. Importamos 'ref' para criar variáveis reativas e 'onMounted' para executar código quando o componente é montado
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
 
-// 5. Criamos nossas variáveis de estado
-const tickets = ref([]); // Uma lista vazia que vai guardar os tickets da API
-const isLoading = ref(true); // Começa como 'true' para mostrar a mensagem de carregamento
+const tickets = ref([]);
+const isLoading = ref(true);
 
-// 6. 'onMounted' é uma função do Vue que roda automaticamente uma vez,
-//    assim que o componente é criado e exibido na tela. É o lugar perfeito
-//    para buscar dados iniciais.
 onMounted(async () => {
   try {
-    // Busca os dados na nossa API
     const response = await api.get('/tickets');
-    // Preenche nossa variável 'tickets' com a resposta
     tickets.value = response.data.Tickets;
   } catch (error) {
     console.error("Erro ao buscar os tickets:", error);
-    // Poderíamos adicionar uma mensagem de erro na tela aqui também
   } finally {
-    // 7. Aconteça o que acontecer (sucesso ou erro), paramos de carregar
     isLoading.value = false;
   }
 });
@@ -73,8 +71,14 @@ onMounted(async () => {
   padding: 1.5rem;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   background-color: white;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.ticket-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
 .ticket-card h2 {
@@ -94,5 +98,11 @@ onMounted(async () => {
   justify-content: space-between;
   font-size: 0.85rem;
   color: #888;
+}
+
+/* Adicionamos este estilo para o link não ter decoração (sublinhado, etc.) */
+.ticket-link {
+  text-decoration: none;
+  color: inherit;
 }
 </style>
