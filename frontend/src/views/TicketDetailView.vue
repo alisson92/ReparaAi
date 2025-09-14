@@ -22,39 +22,59 @@
         </GoogleMap>
       </div>
 
+      <div class="actions">
+        <button class="btn-edit" disabled>Editar</button>
+        <button @click="deleteTicket" class="btn-delete">Excluir Solicitação</button>
       </div>
+
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+// 1. IMPORTAMOS O useRouter PARA PODER REDIRECIONAR O USUÁRIO
+import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
 import { GoogleMap, Marker } from 'vue3-google-map';
 
-// Pega a chave da API do ambiente
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-// Variáveis de estado para guardar os dados, status de carregamento e erros
 const ticket = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
 
-// O 'useRoute' nos dá acesso às informações da rota atual, incluindo os parâmetros
 const route = useRoute();
 const ticketId = route.params.idTicket;
 
-// Propriedade computada para extrair e formatar a posição do marcador
+// 2. INICIALIZAMOS O router
+const router = useRouter();
+
 const markerPosition = computed(() => {
   if (ticket.value && ticket.value.localization) {
     const [lat, lng] = ticket.value.localization.split(',').map(Number);
     return { lat, lng };
   }
-  return { lat: 0, lng: 0 }; // Posição padrão caso algo dê errado
+  return { lat: 0, lng: 0 };
 });
 
+// 3. FUNÇÃO PARA DELETAR O TICKET
+async function deleteTicket() {
+  // Uma boa prática é sempre confirmar ações destrutivas
+  const confirmation = window.confirm("Tem certeza que deseja excluir esta solicitação? Esta ação não pode ser desfeita.");
 
-// Quando o componente é montado, buscamos os detalhes do ticket
+  if (confirmation) {
+    try {
+      await api.delete(`/tickets/${ticketId}`);
+      alert('Solicitação excluída com sucesso!');
+      // Após excluir, redirecionamos o usuário para a página inicial
+      router.push('/');
+    } catch (err) {
+      console.error("Erro ao excluir o ticket:", err);
+      alert("Não foi possível excluir a solicitação.");
+    }
+  }
+}
+
 onMounted(async () => {
   try {
     const response = await api.get(`/tickets/${ticketId}`);
@@ -69,47 +89,40 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.ticket-details {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+/* ... (estilos anteriores) ... */
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end; /* Alinha os botões à direita */
+  gap: 1rem; /* Espaçamento entre os botões */
 }
 
-.ticket-content h1 {
-  margin-top: 0;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
 }
 
-.description {
-  font-size: 1.1rem;
-  line-height: 1.6;
+.btn-edit {
+  background-color: #ffc107;
   color: #333;
 }
 
-.meta-data {
-  display: flex;
-  justify-content: space-between;
-  margin: 1.5rem 0;
-  padding: 1rem 0;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-  color: #666;
+.btn-edit:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
 }
 
-.map-container {
-  margin-top: 2rem;
-  border-radius: 8px;
-  overflow: hidden; /* Garante que o mapa fique com as bordas arredondadas */
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
 }
 
-.loading, .error {
-  text-align: center;
-  font-size: 1.2rem;
-  padding: 3rem;
+.btn-delete:hover {
+  background-color: #c82333;
 }
 </style>
