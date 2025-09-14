@@ -23,10 +23,11 @@
       </div>
 
       <div class="actions">
-        <button class="btn-edit" disabled>Editar</button>
+        <RouterLink :to="`/solicitacao/${ticketId}/edit`">
+          <button class="btn-edit">Editar</button>
+        </RouterLink>
         <button @click="deleteTicket" class="btn-delete">Excluir Solicitação</button>
       </div>
-
     </div>
   </div>
 </template>
@@ -105,6 +106,14 @@ button {
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
+}
+
+.actions .btn-edit {
+  background-color: #ffc107;
+  color: #333;
+}
+.actions .btn-edit:hover {
+  background-color: #e0a800;
 }
 
 .btn-edit {
