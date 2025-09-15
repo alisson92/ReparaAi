@@ -58,20 +58,25 @@ class TicketController {
      * @async
      * @param { ticketData } req.body
      */
-    async createTicket(req, res) {
-        try {
-            const ticketData = req.body;
-            const ticketCreated = await TicketService.createTicket(ticketData)
-            return res.status(201).json({
-                Created: ticketCreated
-            });
-        } catch (e) {
-            console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
-            return res.status(400).json({
-                Error: e.message
-            });
-        }
+async createTicket(req, res) {
+    try {
+        const ticketDataFromForm = req.body;
+        // Pegamos o ID do usuário que o authMiddleware colocou no 'req'
+        const userIdFromToken = req.userId; 
+
+        // Passamos os dados do formulário E o ID do usuário para o service
+        const ticketCreated = await TicketService.createTicket(ticketDataFromForm, userIdFromToken);
+        
+        return res.status(201).json({
+            Created: ticketCreated
+        });
+    } catch (e) {
+        console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
+        return res.status(400).json({
+            Error: e.message
+        });
     }
+}
 
     /**
      * @async
