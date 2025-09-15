@@ -35,32 +35,31 @@ import { GoogleMap, Marker } from 'vue3-google-map';
 
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Posição inicial do mapa e do marcador
 const mapCenter = { lat: -21.4056, lng: -48.5147 }; // Taquaritinga
 const markerPosition = ref(mapCenter);
 
+// --- INÍCIO DA MUDANÇA ---
+// Removemos os dados fixos de usuário. O backend cuidará disso!
 const ticketData = ref({
   header: '',
   description: '',
-  idUser: 1, // TODO: Substituir por dados do usuário logado
-  email: 'teste@email.com', // TODO: Substituir por dados do usuário logado
 });
+// --- FIM DA MUDANÇA ---
 
-// Função para atualizar a posição do marcador
 function handleMapClick(event) {
   markerPosition.value = { lat: event.latLng.lat(), lng: event.latLng.lng() };
 }
 
 async function createTicket() {
   try {
-    // Montamos a string de localização a partir da posição do marcador
-    const localizationString = `${markerPosition.value.lat},${markerPosition.value.lng}`;
-
+    // Montamos o objeto para enviar com os dados do formulário e a localização do mapa
     const dataToSend = {
-      ...ticketData.value,
-      localization: localizationString
+      header: ticketData.value.header,
+      description: ticketData.value.description,
+      localization: `${markerPosition.value.lat},${markerPosition.value.lng}`
     };
     
+    // O Axios Interceptor vai adicionar o token automaticamente no cabeçalho
     const response = await api.post('/tickets', dataToSend);
     
     alert('Solicitação enviada com sucesso!');
