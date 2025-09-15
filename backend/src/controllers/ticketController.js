@@ -6,28 +6,29 @@ class TicketController {
     /**
      * @async
      */
-    async findAllTickets(req, res) {
-        try {
-            const findAll = await TicketService.findAllTickets();
+async findAllTickets(req, res) {
+    try {
+        // 1. Pegamos o ID do usuário que o authMiddleware nos deu
+        const userIdFromToken = req.userId;
 
-            if (findAll.length === 0) {
-                // Adicionamos 'return' para enviar a resposta E encerrar a função.
-                return res.status(404).json({
-                    message: "Empty tickets list"
-                });
-            } else {
-                // Colocamos a resposta de sucesso em um 'else' para garantir
-                // que ela só seja executada se o 'if' for falso.
-                return res.status(200).json({
-                    Tickets: findAll
-                });
-            }
-        } catch (e) {
-            return res.status(400).json({
-                Error: e.message
+        // 2. Passamos esse ID para a função do service
+        const findAll = await TicketService.findAllTickets(userIdFromToken);
+
+        if (findAll.length === 0) {
+            return res.status(200).json({ // Mudamos para 200 OK, pois não é um erro, a lista está apenas vazia
+                Tickets: []
+            });
+        } else {
+            return res.status(200).json({
+                Tickets: findAll
             });
         }
+    } catch (e) {
+        return res.status(400).json({
+            Error: e.message
+        });
     }
+}
 
     /**
      * @async

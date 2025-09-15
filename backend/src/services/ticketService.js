@@ -5,9 +5,9 @@ class TicketService {
     /**
      * Busca todos os tickets no banco de dados.
      */
-    async findAllTickets() {
-        return await Ticket.findAll();
-    }
+async findAllTickets(userId) { // A função agora recebe o ID do usuário para buscar apenas os tickets do usuário logado através de um where no banco de dados.
+    return await Ticket.findAll({ where: { idUser: userId } });
+}
 
     /**
      * Busca um ticket específico pela sua chave primária (ID).
