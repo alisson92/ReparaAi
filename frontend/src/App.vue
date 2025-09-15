@@ -5,6 +5,7 @@
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/cadastro">Cadastro</RouterLink>
         <RouterLink to="/solicitacao">Nova Solicitação</RouterLink>
+        <RouterLink to="/login">Login</RouterLink>
       </nav>
     </div>
   </header>

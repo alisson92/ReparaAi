@@ -1,9 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import CadastroView from '@/views/CadastroView.vue'
-import SolicitacaoView from '@/views/SolicitacaoView.vue'
-import TicketDetailView from '@/views/TicketDetailView.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '@/views/HomeView.vue';
+import CadastroView from '@/views/CadastroView.vue';
+import SolicitacaoView from '@/views/SolicitacaoView.vue';
+import TicketDetailView from '@/views/TicketDetailView.vue';
 import TicketEditView from '@/views/TicketEditView.vue';
+import LoginView from '@/views/LoginView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/solicitacao/:idTicket/edit',
       name: 'ticket-editar',
       component: TicketEditView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView
     }
   ]
 })
