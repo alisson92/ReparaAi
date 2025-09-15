@@ -1,12 +1,13 @@
 const { Router } = require('express');
-const ticketController = require('../controllers/ticketController');
-// 1. Importe o nosso novo middleware de autenticação
+const TicketController = require('../controllers/ticketController'); // 1. Importa a CLASSE
 const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = Router();
 
-// 2. Adicione o 'authMiddleware' como um passo intermediário em todas as rotas de ticket.
-// A requisição primeiro passará pelo 'authMiddleware' e, se for aprovada, seguirá para o controller.
+// 2. Cria UMA instância do controller para usar em todas as rotas
+const ticketController = new TicketController();
+
+// 3. Usa a instância para registrar os métodos nas rotas
 router.get('/tickets', authMiddleware, ticketController.findAllTickets);
 router.post('/tickets', authMiddleware, ticketController.createTicket);
 router.get('/tickets/:idTicket', authMiddleware, ticketController.findTicketByPk);
