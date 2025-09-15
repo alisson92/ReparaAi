@@ -6,28 +6,29 @@ class TicketController {
     /**
      * @async
      */
-    async findAllTickets(req, res) {
-        try {
-            const findAll = await TicketService.findAllTickets();
+async findAllTickets(req, res) {
+    try {
+        // 1. Pegamos o ID do usuário que o authMiddleware nos deu
+        const userIdFromToken = req.userId;
 
-            if (findAll.length === 0) {
-                // Adicionamos 'return' para enviar a resposta E encerrar a função.
-                return res.status(404).json({
-                    message: "Empty tickets list"
-                });
-            } else {
-                // Colocamos a resposta de sucesso em um 'else' para garantir
-                // que ela só seja executada se o 'if' for falso.
-                return res.status(200).json({
-                    Tickets: findAll
-                });
-            }
-        } catch (e) {
-            return res.status(400).json({
-                Error: e.message
+        // 2. Passamos esse ID para a função do service
+        const findAll = await TicketService.findAllTickets(userIdFromToken);
+
+        if (findAll.length === 0) {
+            return res.status(200).json({ // Mudamos para 200 OK, pois não é um erro, a lista está apenas vazia
+                Tickets: []
+            });
+        } else {
+            return res.status(200).json({
+                Tickets: findAll
             });
         }
+    } catch (e) {
+        return res.status(400).json({
+            Error: e.message
+        });
     }
+}
 
     /**
      * @async
@@ -58,20 +59,25 @@ class TicketController {
      * @async
      * @param { ticketData } req.body
      */
-    async createTicket(req, res) {
-        try {
-            const ticketData = req.body;
-            const ticketCreated = await TicketService.createTicket(ticketData)
-            return res.status(201).json({
-                Created: ticketCreated
-            });
-        } catch (e) {
-            console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
-            return res.status(400).json({
-                Error: e.message
-            });
-        }
+async createTicket(req, res) {
+    try {
+        const ticketDataFromForm = req.body;
+        // Pegamos o ID do usuário que o authMiddleware colocou no 'req'
+        const userIdFromToken = req.userId; 
+
+        // Passamos os dados do formulário E o ID do usuário para o service
+        const ticketCreated = await TicketService.createTicket(ticketDataFromForm, userIdFromToken);
+        
+        return res.status(201).json({
+            Created: ticketCreated
+        });
+    } catch (e) {
+        console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
+        return res.status(400).json({
+            Error: e.message
+        });
     }
+}
 
     /**
      * @async
