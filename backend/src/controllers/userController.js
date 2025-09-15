@@ -65,7 +65,6 @@ class UserController {
                 Registered: userRegistered
             })
         } catch (e) {
-            // <<<---- AQUI ESTÁ A LINHA QUE ADICIONAMOS PARA DEBUGGING
             console.error("ERRO DETALHADO DO SEQUELIZE:", e);
 
             res.status(400).json({
@@ -73,6 +72,24 @@ class UserController {
             })
         }
     }
+
+    // --- NOSSO NOVO MÉTODO DE LOGIN ---
+    async login(req, res) {
+        try {
+            const { email, password } = req.body;
+            // Validação simples para garantir que os dados foram enviados
+            if (!email || !password) {
+                return res.status(400).json({ error: "Email e senha são obrigatórios." });
+            }
+
+            const result = await UserService.login(email, password);
+            return res.status(200).json(result);
+        } catch (e) {
+            // Usamos 401 (Não Autorizado) para erros de autenticação
+            return res.status(401).json({ error: e.message });
+        }
+    }
+    // --- FIM DO MÉTODO DE LOGIN ---
 
     /**
      * @async
@@ -83,7 +100,7 @@ class UserController {
             const { idUser } = req.params;
 
             if (!idUser) {
-                res.status(404)({
+                res.status(404).json({ // Corrigido: .json() é uma função
                     message: "User not found"
                 })
             } else {

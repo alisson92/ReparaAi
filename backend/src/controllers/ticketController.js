@@ -11,17 +11,21 @@ class TicketController {
             const findAll = await TicketService.findAllTickets();
 
             if (findAll.length === 0) {
-                res.status(404).json({
+                // Adicionamos 'return' para enviar a resposta E encerrar a função.
+                return res.status(404).json({
                     message: "Empty tickets list"
-                })
+                });
+            } else {
+                // Colocamos a resposta de sucesso em um 'else' para garantir
+                // que ela só seja executada se o 'if' for falso.
+                return res.status(200).json({
+                    Tickets: findAll
+                });
             }
-            res.status(200).json({
-                Tickets: findAll
-            })
         } catch (e) {
-            res.status(400).json({
+            return res.status(400).json({
                 Error: e.message
-            })
+            });
         }
     }
 
@@ -35,18 +39,18 @@ class TicketController {
             const ticketData = await TicketService.findTicketByPk(idTicket);
 
             if (!ticketData) {
-                res.status(404).json({
+                return res.status(404).json({
                     message: "Ticket not found"
-                })
+                });
             } else {
-                res.status(200).json({
+                return res.status(200).json({
                     Ticket: ticketData
-                })
+                });
             }
         } catch (e) {
-            res.status(400).json({
+            return res.status(400).json({
                 Error: e.message
-            })
+            });
         }
     }
 
@@ -58,16 +62,14 @@ class TicketController {
         try {
             const ticketData = req.body;
             const ticketCreated = await TicketService.createTicket(ticketData)
-            res.status(201).json({
+            return res.status(201).json({
                 Created: ticketCreated
-            })
+            });
         } catch (e) {
-            // AQUI ESTÁ A LINHA ADICIONADA PARA DEBUGGING
-            console.error("ERRO DETALHADO AO CRIAR TICKET:", e); 
-
-            res.status(400).json({
+            console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
+            return res.status(400).json({
                 Error: e.message
-            })
+            });
         }
     }
 
@@ -80,19 +82,19 @@ class TicketController {
             const { idTicket } = req.params;
 
             if (!idTicket) {
-                res.status(404).json({
+                return res.status(404).json({
                     message: "Ticket not found"
-                })
+                });
             } else {
                 const deletedTicket = await TicketService.deleteTicket(idTicket);
-                res.status(200).json({
+                return res.status(200).json({
                     Deleted: deletedTicket
-                })
+                });
             }
         } catch (e) {
-            res.status(400).json({
+            return res.status(400).json({
                 Error: e.message
-            })
+            });
         }
     }
 
@@ -106,20 +108,20 @@ class TicketController {
             const ticketData = req.body;
 
             if (!idTicket) {
-                res.status(404).json({
+                return res.status(404).json({
                     message: "Ticket not found"
-                })
+                });
             } else {
                 await TicketService.updateTicket(idTicket, ticketData);
                 const result = await TicketService.findTicketByPk(idTicket);
-                res.status(200).json({
+                return res.status(200).json({
                     Updated: result
-                })
+                });
             }
         } catch (e) {
-            res.status(400).json({
+            return res.status(400).json({
                 Error: e.message
-            })
+            });
         }
     }
 }
