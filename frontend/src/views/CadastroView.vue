@@ -100,12 +100,50 @@ async function registerUser() {
 </script>
 
 <style scoped>
-/* Os estilos continuam os mesmos */
-.cadastro { max-width: 500px; margin: 2rem auto; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.form-group { margin-bottom: 1rem; }
-label { display: block; margin-bottom: 0.5rem; }
-input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-button { padding: 0.75rem 1.5rem; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 1rem;}
-button:hover { background-color: #0056b3; }
-hr { margin: 2rem 0; border: 0; border-top: 1px solid #eee; }
+.cadastro-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cadastro-box {
+  width: 100%;
+  max-width: 500px;
+  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  background-color: var(--surface-color);
+}
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.form-group {
+  margin-bottom: 1.5rem;
+}
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+button:hover {
+  background-color: var(--primary-color-dark);
+}
 </style>
