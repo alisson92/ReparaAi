@@ -25,6 +25,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // Não esqueça de importar o RouterLink, se necessário
 import api from '../services/api';
+import { useToast } from 'vue-toastification'; // 1. Importe o 'useToast' da biblioteca
 
 const credentials = ref({
   email: '',
@@ -32,18 +33,22 @@ const credentials = ref({
 });
 
 const router = useRouter();
+const toast = useToast(); // 2. Inicialize o 'toast'
 
 async function handleLogin() {
   try {
     const response = await api.post('/login', credentials.value);
     const token = response.data.token;
     localStorage.setItem('authToken', token);
-    alert('Login realizado com sucesso!');
+
+    toast.success('Login realizado com sucesso!');
     router.push('/');
+
   } catch (error) {
     console.error('Erro de login:', error);
     const errorMessage = error.response?.data?.error || 'Não foi possível fazer o login. Verifique suas credenciais.';
-    alert(`Erro: ${errorMessage}`);
+    
+    toast.error(errorMessage);
   }
 }
 </script>
