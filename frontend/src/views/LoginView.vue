@@ -70,8 +70,8 @@ async function handleLogin() {
 .content-wrapper {
   display: flex;
   width: 100%;
-  max-width: 1350px;
-  height: 810px;
+  max-width: 1500px;
+  aspect-ratio: 5 / 3; /* Proporção de 5 para 3 */
   box-shadow: var(--box-shadow);
   border-radius: 20px;
   overflow: hidden;
