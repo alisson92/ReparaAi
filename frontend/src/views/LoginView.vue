@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="branding-panel">
-      <div class="logo-placeholder">ReparaAi</div>
+      <img src="@/assets/images/reparaai-logo.png" alt="Logo ReparaAi" class="app-logo">
     </div>
 
     <div class="form-panel">
@@ -29,7 +29,6 @@
 </template>
 
 <script setup>
-// A LÓGICA JAVASCRIPT É EXATAMENTE A MESMA DE ANTES!
 import { ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import api from '../services/api';
@@ -64,18 +63,19 @@ async function handleLogin() {
 
 .branding-panel {
   flex: 1;
+  /* Esta é a versão correta do gradiente que corresponde ao seu design */
   background: linear-gradient(160deg, #0b3d4f 0%, #1e837e 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
 }
 
-.logo-placeholder {
-  font-size: 4rem;
-  font-weight: bold;
-  /* Simula a logo rabiscada */
-  text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+/* Estilos para a nova classe 'app-logo' */
+.app-logo {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
 
 .form-panel {
@@ -136,7 +136,7 @@ button {
   width: 100%;
   padding: 0.9rem 1.5rem;
   border: none;
-  background-color: #3b3a51;
+  background-color: #3b3a51; /* Cor do botão do seu design de referência */
   color: white;
   border-radius: var(--border-radius);
   cursor: pointer;
