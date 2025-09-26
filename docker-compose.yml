@@ -1,12 +1,11 @@
-# ReparaAi/docker-compose.yml
-
 services:
   db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: reparaai
-      MYSQL_ROOT_PASSWORD: senha
+      # Usando a sintaxe de valor padrão aqui também por consistência
+      MYSQL_DATABASE: ${DB_NAME:-reparaai}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-senha}
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -22,12 +21,23 @@ services:
       context: ./backend
     restart: always
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000" # Mapeia a porta do .env ou a padrão 3000
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - ./backend/.env
+    
+    # MUDANÇA PRINCIPAL AQUI: Adicionamos os valores padrão
+    environment:
+      - PORT=${PORT:-3000}
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-senha}
+      - DB_NAME=${DB_NAME:-reparaai}
+      - GOOGLE_KEY=${GOOGLE_KEY}
+      - JWT_SECRET=${JWT_SECRET:-este_e_um_segredo_muito_seguro_para_o_reparaai}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1d}
+
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
@@ -39,7 +49,7 @@ services:
       context: ./frontend
     restart: always
     ports:
-      - "5174:5173"
+      - "${VITE_PORT:-5174}:5173" # Adicionamos um padrão aqui também
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
