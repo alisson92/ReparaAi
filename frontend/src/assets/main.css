@@ -4,7 +4,7 @@
 :root {
   --primary-color: #2f60d8;
   --primary-color-dark: #2349a8;
-  --background-color: #f4f7fa;
+  --background-color: #f0f4f8; /* <-- ALTERE AQUI para um tom mais suave */
   --surface-color: #ffffff;
   --text-color: #333333;
   --text-color-secondary: #777777;
