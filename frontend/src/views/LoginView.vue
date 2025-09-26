@@ -17,15 +17,16 @@
       <div class="register-link">
         <p>Não tem uma conta? <RouterLink to="/cadastro">Cadastre-se</RouterLink></p>
       </div>
-      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // Não esqueça de importar o RouterLink, se necessário
+import { useRouter, RouterLink } from 'vue-router';
 import api from '../services/api';
-import { useToast } from 'vue-toastification'; // 1. Importe o 'useToast' da biblioteca
+// A importação correta para o 'useToast' também deve ser explícita
+import { useToast } from 'vue-toastification/dist/index.mjs';
 
 const credentials = ref({
   email: '',
@@ -33,7 +34,7 @@ const credentials = ref({
 });
 
 const router = useRouter();
-const toast = useToast(); // 2. Inicialize o 'toast'
+const toast = useToast();
 
 async function handleLogin() {
   try {
@@ -46,8 +47,7 @@ async function handleLogin() {
 
   } catch (error) {
     console.error('Erro de login:', error);
-    const errorMessage = error.response?.data?.error || 'Não foi possível fazer o login. Verifique suas credenciais.';
-    
+    const errorMessage = error.response?.data?.error || 'Não foi possível fazer o login.';
     toast.error(errorMessage);
   }
 }
