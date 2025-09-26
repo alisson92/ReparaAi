@@ -40,9 +40,10 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
 import { GoogleMap, Marker } from 'vue3-google-map';
+import { useToast } from 'vue-toastification/dist/index.mjs'; // Importe o useToast
 
+const toast = useToast(); // Inicialize o toast
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
 const route = useRoute();
 const router = useRouter();
 const ticketId = route.params.idTicket;
@@ -58,28 +59,24 @@ const isLoading = ref(true);
 const mapCenter = ref({ lat: 0, lng: 0 });
 const markerPosition = ref({ lat: 0, lng: 0 });
 
-// Função para buscar os dados do ticket e preencher o formulário
 onMounted(async () => {
   try {
     const response = await api.get(`/tickets/${ticketId}`);
     const ticket = response.data.Ticket;
     
-    // Preenche os campos do formulário com os dados existentes
     ticketData.value.header = ticket.header;
     ticketData.value.description = ticket.description;
 
-    // Extrai as coordenadas para o mapa
     const [lat, lng] = ticket.localization.split(',').map(Number);
     ticketData.value.localization_lat = lat;
     ticketData.value.localization_lon = lng;
     
-    // Centraliza o mapa e o marcador na localização atual do ticket
     mapCenter.value = { lat, lng };
     markerPosition.value = { lat, lng };
 
   } catch (error) {
     console.error("Erro ao buscar dados do ticket para edição:", error);
-    alert("Não foi possível carregar os dados para edição.");
+    toast.error("Não foi possível carregar os dados para edição."); // Troque o alert por toast.error
   } finally {
     isLoading.value = false;
   }
@@ -92,25 +89,24 @@ function handleMapClick(event) {
   ticketData.value.localization_lon = newCoords.lng;
 }
 
-// Função para enviar os dados atualizados para a API
 async function updateTicket() {
   try {
     const dataToSend = {
       header: ticketData.value.header,
       description: ticketData.value.description,
       localization: `${ticketData.value.localization_lat},${ticketData.value.localization_lon}`
-      // O backend já sabe qual idUser e email estão associados a este ticket
     };
     
     await api.put(`/tickets/${ticketId}`, dataToSend);
     
-    alert('Solicitação atualizada com sucesso!');
-    // Redireciona de volta para a página de detalhes
+    // Troque o alert por toast.success
+    toast.success('Solicitação atualizada com sucesso!');
     router.push(`/solicitacao/${ticketId}`);
 
   } catch (error) {
     console.error('Erro ao atualizar a solicitação:', error);
-    alert('Não foi possível salvar as alterações.');
+    // Troque o alert por toast.error
+    toast.error('Não foi possível salvar as alterações.');
   }
 }
 </script>

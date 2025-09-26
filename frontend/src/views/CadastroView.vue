@@ -61,8 +61,10 @@
 <script setup>
 import { ref } from 'vue';
 import api from '../services/api';
+import { useToast } from 'vue-toastification/dist/index.mjs'; // Importe o useToast
 
-// Atualizamos o objeto para refletir os novos campos de endereço
+const toast = useToast(); // Inicialize o toast
+
 const userData = ref({
   name: '',
   email: '',
@@ -78,15 +80,14 @@ const userData = ref({
   state: ''
 });
 
-// A função registerUser continua exatamente a mesma, pois ela já envia o objeto userData.value completo
 async function registerUser() {
   try {
     const response = await api.post('/user', userData.value);
     
-    alert('Usuário cadastrado com sucesso!');
+    // Troque o alert por toast.success
+    toast.success('Usuário cadastrado com sucesso!');
     console.log(response.data);
 
-    // Limpar o formulário (opcional, pode remover se preferir)
     for (const key in userData.value) {
       userData.value[key] = '';
     }
@@ -94,7 +95,9 @@ async function registerUser() {
   } catch (error) {
     console.error('Erro ao cadastrar usuário:', error);
     const errorMessage = error.response?.data?.message || 'Não foi possível completar o cadastro.';
-    alert(`Erro: ${errorMessage}`);
+    
+    // Troque o alert por toast.error
+    toast.error(errorMessage);
   }
 }
 </script>

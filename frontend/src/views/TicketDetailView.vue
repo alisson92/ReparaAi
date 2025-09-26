@@ -34,11 +34,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-// 1. IMPORTAMOS O useRouter PARA PODER REDIRECIONAR O USUÁRIO
 import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
 import { GoogleMap, Marker } from 'vue3-google-map';
+import { useToast } from 'vue-toastification/dist/index.mjs'; // Importe o useToast
 
+const toast = useToast(); // Inicialize o toast
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const ticket = ref(null);
 const isLoading = ref(true);
@@ -46,8 +47,6 @@ const error = ref(null);
 
 const route = useRoute();
 const ticketId = route.params.idTicket;
-
-// 2. INICIALIZAMOS O router
 const router = useRouter();
 
 const markerPosition = computed(() => {
@@ -58,20 +57,19 @@ const markerPosition = computed(() => {
   return { lat: 0, lng: 0 };
 });
 
-// 3. FUNÇÃO PARA DELETAR O TICKET
 async function deleteTicket() {
-  // Uma boa prática é sempre confirmar ações destrutivas
   const confirmation = window.confirm("Tem certeza que deseja excluir esta solicitação? Esta ação não pode ser desfeita.");
 
   if (confirmation) {
     try {
       await api.delete(`/tickets/${ticketId}`);
-      alert('Solicitação excluída com sucesso!');
-      // Após excluir, redirecionamos o usuário para a página inicial
+      // Troque o alert por toast.success
+      toast.success('Solicitação excluída com sucesso!');
       router.push('/');
     } catch (err) {
       console.error("Erro ao excluir o ticket:", err);
-      alert("Não foi possível excluir a solicitação.");
+      // Troque o alert por toast.error
+      toast.error("Não foi possível excluir a solicitação.");
     }
   }
 }
