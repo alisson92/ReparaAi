@@ -1,0 +1,37 @@
+/* frontend/src/assets/main.css */
+
+/* 1. Definindo nossas variáveis de cores e estilo */
+:root {
+  --primary-color: #2f60d8;
+  --primary-color-dark: #2349a8;
+  --background-color: #f0f4f8; /* <-- ALTERE AQUI para um tom mais suave */
+  --surface-color: #ffffff;
+  --text-color: #333333;
+  --text-color-secondary: #777777;
+  --border-color: #e0e0e0;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* 2. Reset básico e aplicação dos estilos globais */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  position: relative;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text-color);
+  background: var(--background-color);
+  transition: color 0.5s, background-color 0.5s;
+  line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

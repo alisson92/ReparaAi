@@ -32,19 +32,18 @@
 import { ref } from 'vue';
 import api from '../services/api';
 import { GoogleMap, Marker } from 'vue3-google-map';
+import { useToast } from 'vue-toastification/dist/index.mjs'; // Importe o useToast
 
+const toast = useToast(); // Inicialize o toast
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-const mapCenter = { lat: -21.4056, lng: -48.5147 }; // Taquaritinga
+const mapCenter = { lat: -21.4056, lng: -48.5147 };
 const markerPosition = ref(mapCenter);
 
-// --- INÍCIO DA MUDANÇA ---
-// Removemos os dados fixos de usuário. O backend cuidará disso!
 const ticketData = ref({
   header: '',
   description: '',
 });
-// --- FIM DA MUDANÇA ---
 
 function handleMapClick(event) {
   markerPosition.value = { lat: event.latLng.lat(), lng: event.latLng.lng() };
@@ -52,17 +51,16 @@ function handleMapClick(event) {
 
 async function createTicket() {
   try {
-    // Montamos o objeto para enviar com os dados do formulário e a localização do mapa
     const dataToSend = {
       header: ticketData.value.header,
       description: ticketData.value.description,
       localization: `${markerPosition.value.lat},${markerPosition.value.lng}`
     };
     
-    // O Axios Interceptor vai adicionar o token automaticamente no cabeçalho
     const response = await api.post('/tickets', dataToSend);
     
-    alert('Solicitação enviada com sucesso!');
+    // Troque o alert por toast.success
+    toast.success('Solicitação enviada com sucesso!');
     console.log('Ticket criado:', response.data);
 
     ticketData.value.header = '';
@@ -71,7 +69,9 @@ async function createTicket() {
   } catch (error) {
     console.error('Erro ao criar a solicitação:', error);
     const errorMessage = error.response?.data?.message || 'Não foi possível enviar a solicitação.';
-    alert(`Erro: ${errorMessage}`);
+
+    // Troque o alert por toast.error
+    toast.error(errorMessage);
   }
 }
 </script>
