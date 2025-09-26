@@ -1,9 +1,7 @@
 <template>
   <div class="login-page">
     <div class="content-wrapper">
-      <div class="branding-panel">
-        <img src="@/assets/images/reparaai-logo.png" alt="Logo ReparaAi" class="app-logo">
-      </div>
+      <div class="branding-panel"></div>
 
       <div class="form-panel">
         <div class="login-form-container">
@@ -31,7 +29,7 @@
 </template>
 
 <script setup>
-// O SCRIPT SETUP CONTINUA EXATAMENTE O MESMO
+// O SCRIPT NÃO MUDA
 import { ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import api from '../services/api';
@@ -41,11 +39,23 @@ const credentials = ref({ email: '', password: '' });
 const router = useRouter();
 const toast = useToast();
 
-async function handleLogin() { /* ... (código da função continua o mesmo) ... */ }
+async function handleLogin() {
+  try {
+    const response = await api.post('/login', credentials.value);
+    const token = response.data.token;
+    localStorage.setItem('authToken', token);
+    toast.success('Login realizado com sucesso!');
+    router.push('/');
+  } catch (error) {
+    console.error('Erro de login:', error);
+    const errorMessage = error.response?.data?.error || 'Não foi possível fazer o login.';
+    toast.error(errorMessage);
+  }
+}
 </script>
 
 <style scoped>
-/* ESTILO ATUALIZADO PARA O NOVO LAYOUT */
+/* ESTILO DA VERSÃO ANTERIOR QUE VOCÊ GOSTOU */
 
 .login-page {
   display: flex;
@@ -54,48 +64,34 @@ async function handleLogin() { /* ... (código da função continua o mesmo) ...
   width: 100vw;
   height: 100vh;
   padding: 2rem;
-  background-color: var(--background-color);
+  background-color: var(--background-color); /* Fundo suave */
 }
 
-/* O container principal agora usa Grid para um controle mais fino das colunas */
 .content-wrapper {
-  display: grid;
-  /* 1. MUDANÇA: O painel da esquerda (45%) será um pouco menor que o da direita (55%) */
-  grid-template-columns: 45% 55%; 
+  display: flex;
   width: 100%;
-  max-width: 1100px;
-  height: 650px;
+  max-width: 1000px;
+  height: 600px;
   box-shadow: var(--box-shadow);
   border-radius: 20px;
   overflow: hidden;
 }
 
-/* Painel da Esquerda com um gradiente suave extraído da sua logo */
 .branding-panel {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  background: linear-gradient(160deg, #d4f0f0 0%, #a2d2ff 100%);
-}
-
-/* 2. MUDANÇA: A logo agora ocupa 80% do espaço do painel e tem bordas arredondadas */
-.app-logo {
-  max-width: 80%;
-  max-height: 80%;
-  object-fit: contain;
-  border-radius: 15px; /* Bordas levemente arredondadas na imagem */
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Sombra sutil na própria logo */
+  flex: 1; /* Ocupa 50% do espaço */
+  background-image: url(@/assets/images/reparaai-logo.png);
+  background-size: cover;
+  background-position: center;
 }
 
 .form-panel {
+  flex: 1; /* Ocupa os outros 50% do espaço */
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--surface-color);
 }
 
-/* O resto do CSS do formulário continua o mesmo */
 .login-form-container { width: 100%; max-width: 380px; padding: 2rem; }
 .login-form-container h2 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
 .login-form-container p { margin-bottom: 2rem; color: var(--text-color-secondary); }
