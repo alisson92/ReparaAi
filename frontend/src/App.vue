@@ -1,5 +1,5 @@
 <template>
-  <header class="main-header">
+  <header v-if="isNavVisible" class="main-header">
     <div class="header-content">
       <div class="logo">
         <h1>ReparaAi</h1>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
 import { jwtDecode } from 'jwt-decode';
 
@@ -36,6 +36,17 @@ const router = useRouter();
 const route = useRoute();
 const isLoggedIn = ref(false);
 const userName = ref(null);
+
+// 3. Crie a propriedade computada
+// Ela vai verificar o nome da rota atual e retornar true/false
+const isNavVisible = computed(() => {
+  const hiddenRoutes = ['login', 'cadastro'];
+  return !hiddenRoutes.includes(route.name);
+});
+
+const mainContentPadding = computed(() => {
+  return isNavVisible.value ? '2rem' : '0';
+});
 
 function checkAuthStatus() {
   const token = localStorage.getItem('authToken');
@@ -105,6 +116,6 @@ watch(route, checkAuthStatus);
    background-color: rgba(220, 53, 69, 1) !important;
 }
 .main-content {
-  padding: 2rem;
+  padding: v-bind(mainContentPadding);
 }
 </style>
