@@ -4,9 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
-// --- INÍCIO DA CONFIGURAÇÃO DO TOAST ---
 import Toast from 'vue-toastification'
-// Importando o CSS da biblioteca
 import 'vue-toastification/dist/index.css'
 
 const app = createApp(App)
