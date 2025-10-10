@@ -1,52 +1,78 @@
 <template>
-  <div class="solicitacao">
-    <h1>Nova Solicitação</h1>
-    <p>Descreva o problema e aponte a localização exata no mapa.</p>
-    <form @submit.prevent="createTicket">
-      <div class="form-group">
-        <label for="header">Título da Solicitação</label>
-        <input type="text" id="header" v-model="ticketData.header" required placeholder="Ex: Buraco na rua em frente ao número 123">
-      </div>
-      <div class="form-group">
-        <label for="description">Descrição Detalhada</label>
-        <textarea id="description" v-model="ticketData.description" required rows="5" placeholder="Forneça mais detalhes sobre o problema..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Localização (clique no mapa para definir)</label>
-        <GoogleMap
-          :api-key="apiKey"
-          style="width: 100%; height: 300px"
-          :center="mapCenter"
-          :zoom="15"
-          @click="handleMapClick"
-        >
-          <Marker :options="{ position: markerPosition }" />
-        </GoogleMap>
-      </div>
-      <button type="submit">Enviar Solicitação</button>
-    </form>
+  <div class="page page--form">
+    <div class="card">
+      <header class="card__header">
+        <h1 class="card__title">Nova Solicitação</h1>
+        <p class="card__subtitle">Descreva o problema e aponte a localização exata no mapa 📍</p>
+      </header>
+
+      <form class="form" @submit.prevent="createTicket">
+        <!-- Título -->
+        <div class="form__field form__field--full">
+          <label for="header">Título da Solicitação *</label>
+          <input 
+            id="header"
+            type="text"
+            v-model="ticketData.header"
+            required
+            placeholder="Ex: Buraco na rua em frente ao número 123"
+          />
+        </div>
+
+        <!-- Descrição -->
+        <div class="form__field form__field--full">
+          <label for="description">Descrição Detalhada *</label>
+          <textarea 
+            id="description"
+            v-model="ticketData.description"
+            required
+            rows="5"
+            placeholder="Forneça mais detalhes sobre o problema..."
+          ></textarea>
+        </div>
+
+        <!-- Mapa -->
+        <div class="form__field form__field--full">
+          <label>Localização (clique no mapa para definir)</label>
+          <GoogleMap
+            :api-key="apiKey"
+            style="width: 100%; height: 300px; border-radius: var(--border-radius); overflow: hidden;"
+            :center="mapCenter"
+            :zoom="15"
+            @click="handleMapClick"
+          >
+            <Marker :options="{ position: markerPosition }" />
+          </GoogleMap>
+        </div>
+
+        <!-- Botão -->
+        <div class="form__actions">
+          <button type="submit" class="btn btn--primary">Enviar Solicitação</button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import api from '../services/api';
-import { GoogleMap, Marker } from 'vue3-google-map';
-import { useToast } from 'vue-toastification/dist/index.mjs'; // Importe o useToast
+import { ref } from 'vue'
+import api from '../services/api'
+import { GoogleMap, Marker } from 'vue3-google-map'
+import { useToast } from 'vue-toastification/dist/index.mjs'
 
-const toast = useToast(); // Inicialize o toast
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const toast = useToast()
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
-const mapCenter = { lat: -21.4056, lng: -48.5147 };
-const markerPosition = ref(mapCenter);
+const mapCenter = { lat: -21.4056, lng: -48.5147 }
+const markerPosition = ref(mapCenter)
 
 const ticketData = ref({
   header: '',
   description: '',
-});
+})
 
 function handleMapClick(event) {
-  markerPosition.value = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+  markerPosition.value = { lat: event.latLng.lat(), lng: event.latLng.lng() }
 }
 
 async function createTicket() {
@@ -55,33 +81,105 @@ async function createTicket() {
       header: ticketData.value.header,
       description: ticketData.value.description,
       localization: `${markerPosition.value.lat},${markerPosition.value.lng}`
-    };
-    
-    const response = await api.post('/tickets', dataToSend);
-    
-    // Troque o alert por toast.success
-    toast.success('Solicitação enviada com sucesso!');
-    console.log('Ticket criado:', response.data);
+    }
+    const response = await api.post('/tickets', dataToSend)
 
-    ticketData.value.header = '';
-    ticketData.value.description = '';
+    toast.success('Solicitação enviada com sucesso!')
+    console.log('Ticket criado:', response.data)
 
+    ticketData.value.header = ''
+    ticketData.value.description = ''
   } catch (error) {
-    console.error('Erro ao criar a solicitação:', error);
-    const errorMessage = error.response?.data?.message || 'Não foi possível enviar a solicitação.';
-
-    // Troque o alert por toast.error
-    toast.error(errorMessage);
+    console.error('Erro ao criar a solicitação:', error)
+    const errorMessage = error.response?.data?.message || 'Não foi possível enviar a solicitação.'
+    toast.error(errorMessage)
   }
 }
 </script>
 
 <style scoped>
-/* Estilos existentes */
-.solicitacao { max-width: 600px; margin: 2rem auto; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.form-group { margin-bottom: 1.5rem; }
-label { display: block; margin-bottom: 0.5rem; }
-input, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
-button { padding: 0.75rem 1.5rem; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 1rem; }
-button:hover { background-color: #0056b3; }
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: var(--background-color);
+  padding: 2rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 780px;
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+}
+
+.card__header { margin-bottom: 1.25rem; }
+.card__title {
+  margin: 0 0 .25rem 0;
+  font-size: 1.75rem;
+  color: var(--text-color);
+}
+.card__subtitle {
+  margin: 0;
+  color: var(--text-color-secondary);
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+input, textarea {
+  padding: .75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: #fff;
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: border-color .2s, box-shadow .2s;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-color-secondary);
+}
+input:focus, textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  outline: none;
+}
+
+/* Botão */
+.form__actions { margin-top: .5rem; }
+.btn {
+  width: 100%;
+  height: 48px;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .05s ease, filter .2s;
+}
+.btn--primary {
+  background: var(--primary-color);
+  color: #fff;
+}
+.btn--primary:hover { filter: brightness(1.05); }
+.btn--primary:active { transform: translateY(1px); }
+
+/* Responsivo */
+@media (max-width: 820px) {
+  .card { padding: 1.25rem; }
+}
 </style>
