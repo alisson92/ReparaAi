@@ -1,56 +1,39 @@
 <template>
-  <div class="page page--edit">
-    <div class="card">
-      <h1 class="card__title">Editar Solicitação</h1>
+  <div class="ticket-edit">
+    <h1>Editar Solicitação</h1>
 
-      <div v-if="isLoading" class="loading">Carregando...</div>
+    <div v-if="isLoading">Carregando...</div>
+    <form v-else @submit.prevent="updateTicket">
+      <div class="form-group">
+        <label for="header">Título da Solicitação</label>
+        <input type="text" id="header" v-model="ticketData.header" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Descrição Detalhada</label>
+        <textarea id="description" v-model="ticketData.description" required rows="5"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>Localização (clique no mapa para alterar)</label>
+        <GoogleMap
+          :api-key="apiKey"
+          style="width: 100%; height: 300px; border-radius: var(--border-radius); overflow: hidden;"
+          :center="mapCenter"
+          :zoom="15"
+          @click="handleMapClick"
+        >
+          <Marker :options="{ position: markerPosition }" />
+        </GoogleMap>
+      </div>
 
-      <form v-else @submit.prevent="updateTicket" class="form">
-        <div class="form-group">
-          <label for="header">Título da Solicitação</label>
-          <input
-            type="text"
-            id="header"
-            v-model="ticketData.header"
-            required
-            placeholder="Digite o título da solicitação"
-          />
-        </div>
+      <div class="coords-display">
+        <span>Lat: {{ ticketData.localization_lat }}</span>
+        <span>Lon: {{ ticketData.localization_lon }}</span>
+      </div>
 
-        <div class="form-group">
-          <label for="description">Descrição Detalhada</label>
-          <textarea
-            id="description"
-            v-model="ticketData.description"
-            required
-            rows="5"
-            placeholder="Explique melhor o problema..."
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Localização (clique no mapa para alterar)</label>
-          <GoogleMap
-            :api-key="apiKey"
-            style="width: 100%; height: 300px; border-radius: var(--border-radius); overflow: hidden;"
-            :center="mapCenter"
-            :zoom="15"
-            @click="handleMapClick"
-          >
-            <Marker :options="{ position: markerPosition }" />
-          </GoogleMap>
-        </div>
-
-        <div class="coords-display">
-          <span>Lat: {{ ticketData.localization_lat }}</span>
-          <span>Lon: {{ ticketData.localization_lon }}</span>
-        </div>
-
-        <button type="submit" class="btn btn--primary">
-          Salvar Alterações
-        </button>
-      </form>
-    </div>
+      <!-- Botão de salvar com azul padrão -->
+      <button type="submit" class="btn btn--primary">Salvar Alterações</button>
+    </form>
   </div>
 </template>
 
@@ -82,19 +65,20 @@ onMounted(async () => {
   try {
     const response = await api.get(`/tickets/${ticketId}`)
     const ticket = response.data.Ticket
-
+    
     ticketData.value.header = ticket.header
     ticketData.value.description = ticket.description
 
     const [lat, lng] = ticket.localization.split(',').map(Number)
     ticketData.value.localization_lat = lat
     ticketData.value.localization_lon = lng
-
+    
     mapCenter.value = { lat, lng }
     markerPosition.value = { lat, lng }
+
   } catch (error) {
-    console.error('Erro ao buscar dados do ticket para edição:', error)
-    toast.error('Não foi possível carregar os dados para edição.')
+    console.error("Erro ao buscar dados do ticket para edição:", error)
+    toast.error("Não foi possível carregar os dados para edição.")
   } finally {
     isLoading.value = false
   }
@@ -112,12 +96,13 @@ async function updateTicket() {
     const dataToSend = {
       header: ticketData.value.header,
       description: ticketData.value.description,
-      localization: `${ticketData.value.localization_lat},${ticketData.value.localization_lon}`,
+      localization: `${ticketData.value.localization_lat},${ticketData.value.localization_lon}`
     }
-
+    
     await api.put(`/tickets/${ticketId}`, dataToSend)
     toast.success('Solicitação atualizada com sucesso!')
     router.push(`/solicitacao/${ticketId}`)
+
   } catch (error) {
     console.error('Erro ao atualizar a solicitação:', error)
     toast.error('Não foi possível salvar as alterações.')
@@ -126,86 +111,51 @@ async function updateTicket() {
 </script>
 
 <style scoped>
-.page {
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
+.ticket-edit {
+  max-width: 600px;
+  margin: 2rem auto;
   padding: 2rem;
-  background: var(--background-color);
-}
-
-.card {
-  width: 100%;
-  max-width: 720px;
-  background: var(--surface-color);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
-  padding: 2rem;
+  background: var(--surface-color);
 }
 
-.card__title {
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-input,
-textarea {
+.form-group { margin-bottom: 1.5rem; }
+label { display: block; margin-bottom: 0.5rem; }
+input, textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border-radius: 4px;
   font-size: 1rem;
-  background: var(--surface-color);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-input:focus,
-textarea:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-  outline: none;
 }
 
 .coords-display {
   display: flex;
   justify-content: space-around;
-  margin: 1rem 0 1.5rem;
+  margin-bottom: 1.5rem;
   font-family: monospace;
-  background: var(--background-color);
+  background-color: #f0f0f0;
   padding: 0.5rem;
-  border-radius: var(--border-radius);
-  color: var(--text-color-secondary);
+  border-radius: 4px;
 }
 
+/* Botão salvar em azul padrão */
 .btn {
-  padding: 0.85rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   border: none;
   border-radius: var(--border-radius);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all .2s ease;
   width: 100%;
-  font-size: 1rem;
 }
 
 .btn--primary {
-  background: var(--accent-orange);
+  background: var(--primary-color);
   color: #fff;
 }
+
 .btn--primary:hover {
   filter: brightness(1.1);
 }
