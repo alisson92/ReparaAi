@@ -17,32 +17,85 @@
           <div class="form__grid">
             <div class="form__field form__field--full">
               <label for="name">Nome completo *</label>
-              <input id="name" type="text" v-model="userData.name" required placeholder="Ex.: Maria Silva" />
+              <input
+                id="name"
+                type="text"
+                v-model="userData.name"
+                required
+                placeholder="Ex.: Maria Silva"
+                :class="{ invalid: errors.name }"
+                @blur="validateField('name')"
+              />
+              <small v-if="errors.name" class="error">{{ errors.name }}</small>
             </div>
 
             <div class="form__field">
               <label for="email">Email *</label>
-              <input id="email" type="email" v-model="userData.email" required placeholder="seuemail@exemplo.com" />
+              <input
+                id="email"
+                type="email"
+                v-model="userData.email"
+                required
+                placeholder="seuemail@exemplo.com"
+                :class="{ invalid: errors.email }"
+                @blur="validateField('email')"
+              />
+              <small v-if="errors.email" class="error">{{ errors.email }}</small>
             </div>
 
             <div class="form__field">
               <label for="password">Senha *</label>
-              <input id="password" type="password" v-model="userData.password" required placeholder="Mínimo 8 caracteres" />
+              <input
+                id="password"
+                type="password"
+                v-model="userData.password"
+                required
+                placeholder="Mínimo 8 caracteres"
+                :class="{ invalid: errors.password }"
+                @blur="validateField('password')"
+              />
+              <small v-if="errors.password" class="error">{{ errors.password }}</small>
             </div>
 
             <div class="form__field">
               <label for="cpf">CPF *</label>
-              <input id="cpf" type="text" v-model="userData.cpf" required placeholder="000.000.000-00" />
+              <input
+                id="cpf"
+                type="text"
+                v-model="userData.cpf"
+                required
+                placeholder="000.000.000-00"
+                :class="{ invalid: errors.cpf }"
+                @blur="validateField('cpf')"
+              />
+              <small v-if="errors.cpf" class="error">{{ errors.cpf }}</small>
             </div>
 
             <div class="form__field">
               <label for="phone">Telefone *</label>
-              <input id="phone" type="tel" v-model="userData.phone" required placeholder="(11) 90000-0000" />
+              <input
+                id="phone"
+                type="tel"
+                v-model="userData.phone"
+                required
+                placeholder="(11) 90000-0000"
+                :class="{ invalid: errors.phone }"
+                @blur="validateField('phone')"
+              />
+              <small v-if="errors.phone" class="error">{{ errors.phone }}</small>
             </div>
 
             <div class="form__field">
               <label for="birthDate">Data de Nascimento *</label>
-              <input id="birthDate" type="date" v-model="userData.birthDate" required />
+              <input
+                id="birthDate"
+                type="date"
+                v-model="userData.birthDate"
+                required
+                :class="{ invalid: errors.birthDate }"
+                @blur="validateField('birthDate')"
+              />
+              <small v-if="errors.birthDate" class="error">{{ errors.birthDate }}</small>
             </div>
           </div>
         </section>
@@ -57,32 +110,86 @@
           <div class="form__grid">
             <div class="form__field">
               <label for="cep">CEP *</label>
-              <input id="cep" type="text" v-model="userData.cep" required placeholder="00000-000" />
+              <input
+                id="cep"
+                type="text"
+                v-model="userData.cep"
+                required
+                placeholder="00000-000"
+                :class="{ invalid: errors.cep }"
+                @blur="validateField('cep')"
+              />
+              <small v-if="errors.cep" class="error">{{ errors.cep }}</small>
             </div>
 
             <div class="form__field form__field--2">
               <label for="street">Rua *</label>
-              <input id="street" type="text" v-model="userData.street" required placeholder="Nome da rua/avenida" />
+              <input
+                id="street"
+                type="text"
+                v-model="userData.street"
+                required
+                placeholder="Nome da rua/avenida"
+                :class="{ invalid: errors.street }"
+                @blur="validateField('street')"
+              />
+              <small v-if="errors.street" class="error">{{ errors.street }}</small>
             </div>
 
             <div class="form__field">
               <label for="number">Número *</label>
-              <input id="number" type="text" v-model="userData.number" required placeholder="123" />
+              <input
+                id="number"
+                type="text"
+                v-model="userData.number"
+                required
+                placeholder="123"
+                :class="{ invalid: errors.number }"
+                @blur="validateField('number')"
+              />
+              <small v-if="errors.number" class="error">{{ errors.number }}</small>
             </div>
 
             <div class="form__field">
               <label for="neighborhood">Bairro *</label>
-              <input id="neighborhood" type="text" v-model="userData.neighborhood" required placeholder="Bairro" />
+              <input
+                id="neighborhood"
+                type="text"
+                v-model="userData.neighborhood"
+                required
+                placeholder="Bairro"
+                :class="{ invalid: errors.neighborhood }"
+                @blur="validateField('neighborhood')"
+              />
+              <small v-if="errors.neighborhood" class="error">{{ errors.neighborhood }}</small>
             </div>
 
             <div class="form__field">
               <label for="city">Cidade *</label>
-              <input id="city" type="text" v-model="userData.city" required placeholder="Cidade" />
+              <input
+                id="city"
+                type="text"
+                v-model="userData.city"
+                required
+                placeholder="Cidade"
+                :class="{ invalid: errors.city }"
+                @blur="validateField('city')"
+              />
+              <small v-if="errors.city" class="error">{{ errors.city }}</small>
             </div>
 
             <div class="form__field">
               <label for="state">Estado *</label>
-              <input id="state" type="text" v-model="userData.state" required placeholder="UF" />
+              <input
+                id="state"
+                type="text"
+                v-model="userData.state"
+                required
+                placeholder="UF"
+                :class="{ invalid: errors.state }"
+                @blur="validateField('state')"
+              />
+              <small v-if="errors.state" class="error">{{ errors.state }}</small>
             </div>
           </div>
         </section>
@@ -122,11 +229,22 @@ const userData = ref({
   state: ''
 })
 
+const errors = ref({})
+
+function validateField(field) {
+  if (!userData.value[field]) {
+    errors.value[field] = 'Campo obrigatório'
+  } else {
+    errors.value[field] = ''
+  }
+}
+
 async function registerUser () {
   try {
     const { data } = await api.post('/user', userData.value)
     toast.success('Usuário cadastrado com sucesso!')
     Object.keys(userData.value).forEach(k => (userData.value[k] = ''))
+    errors.value = {}
     console.log(data)
   } catch (error) {
     console.error('Erro ao cadastrar usuário:', error)
@@ -137,17 +255,6 @@ async function registerUser () {
 </script>
 
 <style scoped>
-/* Usa suas variáveis já definidas no main.css */
-:root {
-  /* extras leves para acentos, se quiser usar */
-  --accent-green: #4CC265;
-  --accent-orange: #F16529;
-
-  /* derivadas */
-  --focus-ring: color-mix(in srgb, var(--primary-color) 22%, transparent);
-}
-
-/* --- Layout base (card central, igual vibe do login) --- */
 .page {
   min-height: 100dvh;
   display: grid;
@@ -169,14 +276,14 @@ async function registerUser () {
 .card__title {
   margin: 0 0 .25rem 0;
   font-size: 1.75rem;
-  color: var(--text-color);
+  font-weight: 700;
+  color: var(--primary-color);
 }
 .card__subtitle {
   margin: 0;
   color: var(--text-color-secondary);
 }
 
-/* --- Seções --- */
 .section { margin-top: 1.25rem; }
 .section__title {
   display: flex; align-items: center; gap: .5rem;
@@ -189,7 +296,6 @@ async function registerUser () {
 .dot--green  { background: var(--accent-green); }
 .dot--orange { background: var(--accent-orange); }
 
-/* --- Form --- */
 .form { margin-top: .25rem; }
 .form__grid {
   display: grid;
@@ -205,8 +311,8 @@ input {
   height: 44px;
   padding: 0 .9rem;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: #fff;
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
   color: var(--text-color);
   outline: none;
   transition: border-color .2s, box-shadow .2s, background .2s;
@@ -218,10 +324,9 @@ input:focus {
   background: #fff;
 }
 
-/* --- Ações --- */
 .form__actions { margin-top: 1.25rem; }
 .btn {
-  height: 48px; padding: 0 1.25rem; border: 0; border-radius: 10px;
+  height: 48px; padding: 0 1.25rem; border: 0; border-radius: var(--border-radius);
   font-weight: 700; cursor: pointer; transition: transform .05s ease, filter .2s;
 }
 .btn--primary {
@@ -229,21 +334,34 @@ input:focus {
   background: var(--primary-color);
   color: #fff;
 }
-.btn--primary:hover { filter: brightness(1.03); }
+.btn--primary:hover { filter: brightness(1.05); }
 .btn--primary:active { transform: translateY(1px); }
 
 .form__footnote {
-  margin-top: .875rem; color: var(--text-color-secondary); text-align: center;
+  margin-top: .875rem;
+  color: var(--text-color-secondary);
+  text-align: center;
 }
 .link {
-  color: var(--primary-color); text-decoration: none; font-weight: 600;
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: 600;
 }
 .link:hover { text-decoration: underline; }
 
-/* --- Responsivo --- */
 @media (max-width: 820px) {
   .card { padding: 1.25rem; }
   .form__grid { grid-template-columns: 1fr; }
   .form__field--2 { grid-column: 1 / -1; }
+}
+
+/* 🔸 Apenas adições para feedback de erro (não altera o resto) */
+input.invalid {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+.error {
+  color: #dc3545;
+  font-size: 0.85rem;
 }
 </style>
