@@ -1,16 +1,28 @@
 /* frontend/src/assets/main.css */
 
-/* 1. Definindo nossas variáveis de cores e estilo */
+/* 1. Paleta oficial ReparaAí */
 :root {
-  --primary-color: #2f60d8;
-  --primary-color-dark: #2349a8;
-  --background-color: #f0f4f8; /* <-- ALTERE AQUI para um tom mais suave */
+  /* Paleta principal (logo) */
+  --primary-color: #092d4f;          /* Azul escuro (Repara) */
+  --primary-color-dark: #061f38;     /* Azul mais escuro (hover) */
+  --secondary-color: #f77f2f;        /* Laranja (Aí) */
+  --accent-green: #91d13d;           /* Verde check */
+  --support-green-light: #c3ebc5;    /* Verde clarinho (fundo) */
+  --support-blue-light: #85dded;     /* Azul claro */
+
+  /* Cores neutras */
+  --background-color: #f0f4f8;
   --surface-color: #ffffff;
   --text-color: #333333;
   --text-color-secondary: #777777;
   --border-color: #e0e0e0;
+
+  /* Tokens de design */
   --border-radius: 8px;
   --box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+  /* Derivados */
+  --focus-ring: color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 
 /* 2. Reset básico e aplicação dos estilos globais */
@@ -36,16 +48,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-:root {
-  /* Acentos (conforme seu logo) */
-  --accent-green: #4CC265;
-  --accent-orange: #F16529;
-
-  /* Anel de foco derivado da sua cor primária */
-  --focus-ring: color-mix(in srgb, var(--primary-color) 22%, transparent);
-}
-
-/* Inputs e botões base (reúso geral) */
+/* 3. Inputs e botões base (reúso geral) */
 input, select, textarea {
   font: inherit;
   transition: border-color .2s, box-shadow .2s, background .2s;
