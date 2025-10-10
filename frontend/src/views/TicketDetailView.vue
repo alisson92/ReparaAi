@@ -171,21 +171,33 @@ onMounted(async () => {
   cursor: pointer;
   transition: all .2s ease;
 }
+
+/* Editar = laranja suave */
 .btn--edit {
-  background: var(--accent-orange);
+  background: #f8a25b; /* laranja suave */
   color: #fff;
 }
-.btn--edit:hover { filter: brightness(1.1); }
+.btn--edit:hover {
+  background: #f77f2f; /* laranja oficial no hover */
+}
+
+/* Excluir = vermelho */
 .btn--delete {
   background: #dc3545;
   color: #fff;
 }
-.btn--delete:hover { background: #b02a37; }
+.btn--delete:hover {
+  background: #b02a37;
+}
+
+/* Cancelar = cinza neutro */
 .btn--secondary {
   background: #6c757d;
   color: #fff;
 }
-.btn--secondary:hover { background: #5a6268; }
+.btn--secondary:hover {
+  background: #5a6268;
+}
 
 /* Modal */
 .modal-overlay {
