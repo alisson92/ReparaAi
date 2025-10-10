@@ -35,3 +35,23 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+:root {
+  /* Acentos (conforme seu logo) */
+  --accent-green: #4CC265;
+  --accent-orange: #F16529;
+
+  /* Anel de foco derivado da sua cor primária */
+  --focus-ring: color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+/* Inputs e botões base (reúso geral) */
+input, select, textarea {
+  font: inherit;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
