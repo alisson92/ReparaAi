@@ -1,69 +1,225 @@
 <template>
-  <div class="cadastro">
-    <h1>Cadastro de Usuário</h1>
-    <form @submit.prevent="registerUser">
-      <div class="form-group">
-        <label for="name">Nome Completo</label>
-        <input type="text" id="name" v-model="userData.name" required>
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" v-model="userData.email" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <input type="password" id="password" v-model="userData.password" required>
-      </div>
-      <div class="form-group">
-        <label for="cpf">CPF</label>
-        <input type="text" id="cpf" v-model="userData.cpf" required>
-      </div>
-      <div class="form-group">
-        <label for="phone">Telefone</label>
-        <input type="tel" id="phone" v-model="userData.phone" required>
-      </div>
-      <div class="form-group">
-        <label for="birthDate">Data de Nascimento</label>
-        <input type="date" id="birthDate" v-model="userData.birthDate" required>
-      </div>
-      
-      <hr>
-      <h1>Endereço</h1>
-      <div class="form-group">
-        <label for="cep">CEP</label>
-        <input type="text" id="cep" v-model="userData.cep" required>
-      </div>
-      <div class="form-group">
-        <label for="street">Rua</label>
-        <input type="text" id="street" v-model="userData.street" required>
-      </div>
-      <div class="form-group">
-        <label for="number">Número</label>
-        <input type="text" id="number" v-model="userData.number" required>
-      </div>
-      <div class="form-group">
-        <label for="neighborhood">Bairro</label>
-        <input type="text" id="neighborhood" v-model="userData.neighborhood" required>
-      </div>
-      <div class="form-group">
-        <label for="city">Cidade</label>
-        <input type="text" id="city" v-model="userData.city" required>
-      </div>
-      <div class="form-group">
-        <label for="state">Estado</label>
-        <input type="text" id="state" v-model="userData.state" required>
-      </div>
-      <button type="submit">Cadastrar</button>
-    </form>
+  <div class="page page--form">
+    <div class="card">
+      <header class="card__header">
+        <h1 class="card__title">Crie sua conta no ReparaAí</h1>
+        <p class="card__subtitle">Leva menos de 2 minutos ✨</p>
+      </header>
+
+      <form class="form" @submit.prevent="registerUser">
+        <!-- INFORMAÇÕES PESSOAIS -->
+        <section class="section">
+          <div class="section__title">
+            <span class="dot dot--green"></span>
+            <h2>Informações Pessoais</h2>
+          </div>
+
+          <div class="form__grid">
+            <div class="form__field form__field--full">
+              <label for="name">Nome completo *</label>
+              <input
+                id="name"
+                type="text"
+                v-model="userData.name"
+                required
+                placeholder="Ex.: Maria Silva"
+                :class="{ invalid: errors.name }"
+                @blur="validateField('name')"
+              />
+              <small v-if="errors.name" class="error">⚠️ {{ errors.name }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="email">Email *</label>
+              <input
+                id="email"
+                type="email"
+                v-model="userData.email"
+                required
+                placeholder="seuemail@exemplo.com"
+                :class="{ invalid: errors.email }"
+                @blur="validateField('email')"
+              />
+              <small v-if="errors.email" class="error">⚠️ {{ errors.email }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="password">Senha *</label>
+              <input
+                id="password"
+                type="password"
+                v-model="userData.password"
+                required
+                placeholder="Mínimo 8 caracteres"
+                :class="{ invalid: errors.password }"
+                @blur="validateField('password')"
+              />
+              <small v-if="errors.password" class="error">⚠️ {{ errors.password }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="cpf">CPF *</label>
+              <input
+                id="cpf"
+                type="text"
+                :value="userData.cpf"
+                @input="onCpfInput"
+                inputmode="numeric"
+                required
+                placeholder="000.000.000-00"
+                :class="{ invalid: errors.cpf }"
+                @blur="validateField('cpf')"
+              />
+              <small v-if="errors.cpf" class="error">⚠️ {{ errors.cpf }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="phone">Telefone *</label>
+              <input
+                id="phone"
+                type="tel"
+                :value="userData.phone"
+                @input="onPhoneInput"
+                inputmode="numeric"
+                required
+                placeholder="(11) 90000-0000"
+                :class="{ invalid: errors.phone }"
+                @blur="validateField('phone')"
+              />
+              <small v-if="errors.phone" class="error">⚠️ {{ errors.phone }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="birthDate">Data de Nascimento *</label>
+              <input
+                id="birthDate"
+                type="date"
+                v-model="userData.birthDate"
+                required
+                :class="{ invalid: errors.birthDate }"
+                @blur="validateField('birthDate')"
+              />
+              <small v-if="errors.birthDate" class="error">⚠️ {{ errors.birthDate }}</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- ENDEREÇO -->
+        <section class="section">
+          <div class="section__title">
+            <span class="dot dot--orange"></span>
+            <h2>Endereço</h2>
+          </div>
+
+          <div class="form__grid">
+            <div class="form__field">
+              <label for="cep">CEP *</label>
+              <input
+                id="cep"
+                type="text"
+                :value="userData.cep"
+                @input="onCepInput"
+                inputmode="numeric"
+                required
+                placeholder="00000-000"
+                :class="{ invalid: errors.cep }"
+                @blur="validateField('cep')"
+              />
+              <small v-if="errors.cep" class="error">⚠️ {{ errors.cep }}</small>
+            </div>
+
+            <div class="form__field form__field--2">
+              <label for="street">Rua *</label>
+              <input
+                id="street"
+                type="text"
+                v-model="userData.street"
+                required
+                placeholder="Nome da rua/avenida"
+                :class="{ invalid: errors.street }"
+                @blur="validateField('street')"
+              />
+              <small v-if="errors.street" class="error">⚠️ {{ errors.street }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="number">Número *</label>
+              <input
+                id="number"
+                type="text"
+                v-model="userData.number"
+                required
+                placeholder="123"
+                :class="{ invalid: errors.number }"
+                @blur="validateField('number')"
+              />
+              <small v-if="errors.number" class="error">⚠️ {{ errors.number }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="neighborhood">Bairro *</label>
+              <input
+                id="neighborhood"
+                type="text"
+                v-model="userData.neighborhood"
+                required
+                placeholder="Bairro"
+                :class="{ invalid: errors.neighborhood }"
+                @blur="validateField('neighborhood')"
+              />
+              <small v-if="errors.neighborhood" class="error">⚠️ {{ errors.neighborhood }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="city">Cidade *</label>
+              <input
+                id="city"
+                type="text"
+                v-model="userData.city"
+                required
+                placeholder="Cidade"
+                :class="{ invalid: errors.city }"
+                @blur="validateField('city')"
+              />
+              <small v-if="errors.city" class="error">⚠️ {{ errors.city }}</small>
+            </div>
+
+            <div class="form__field">
+              <label for="state">Estado *</label>
+              <input
+                id="state"
+                type="text"
+                v-model="userData.state"
+                required
+                placeholder="UF"
+                :class="{ invalid: errors.state }"
+                @blur="validateField('state')"
+              />
+              <small v-if="errors.state" class="error">⚠️ {{ errors.state }}</small>
+            </div>
+          </div>
+        </section>
+
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit">Cadastrar</button>
+          <p class="form__note">* Campos obrigatórios</p>
+        </div>
+
+        <p class="form__footnote">
+          Já tem conta?
+          <router-link to="/login" class="link">Faça login</router-link>.
+        </p>
+      </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import api from '../services/api';
-import { useToast } from 'vue-toastification/dist/index.mjs'; // Importe o useToast
+import { ref } from 'vue'
+import api from '../services/api'
+import { useToast } from 'vue-toastification/dist/index.mjs'
 
-const toast = useToast(); // Inicialize o toast
+const toast = useToast()
 
 const userData = ref({
   name: '',
@@ -78,75 +234,194 @@ const userData = ref({
   neighborhood: '',
   city: '',
   state: ''
-});
+})
 
-async function registerUser() {
+const errors = ref({})
+
+function validateField(field) {
+  if (!userData.value[field]) {
+    errors.value[field] = 'Campo obrigatório'
+  } else {
+    errors.value[field] = ''
+  }
+}
+
+/* ========= Máscaras (sem dependências) ========= */
+function onlyDigits(v) {
+  return (v || '').replace(/\D/g, '')
+}
+
+function maskCPF(v) {
+  let d = onlyDigits(v).slice(0, 11)
+  if (d.length > 9) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4')
+  if (d.length > 6) return d.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3')
+  if (d.length > 3) return d.replace(/(\d{3})(\d{0,3})/, '$1.$2')
+  return d
+}
+
+function maskCEP(v) {
+  const d = onlyDigits(v).slice(0, 8)
+  return d.length > 5 ? d.replace(/(\d{5})(\d{0,3})/, '$1-$2') : d
+}
+
+function maskPhoneBR(v) {
+  const d = onlyDigits(v).slice(0, 11)
+  if (d.length <= 10) {
+    // Fixo/antigo: (##) ####-#### 
+    return d
+      .replace(/^(\d{0,2})/, '($1')
+      .replace(/^\((\d{2})(\d{0,4})/, '($1) $2')
+      .replace(/^\((\d{2})\)\s(\d{4})(\d{0,4}).*/, '($1) $2-$3')
+      .replace(/\) $/, ') ')
+  }
+  // Celular: (##) #####-#### 
+  return d
+    .replace(/^(\d{0,2})/, '($1')
+    .replace(/^\((\d{2})(\d{0,5})/, '($1) $2')
+    .replace(/^\((\d{2})\)\s(\d{5})(\d{0,4}).*/, '($1) $2-$3')
+    .replace(/\) $/, ') ')
+}
+
+function onCpfInput(e) {
+  userData.value.cpf = maskCPF(e.target.value)
+}
+function onPhoneInput(e) {
+  userData.value.phone = maskPhoneBR(e.target.value)
+}
+function onCepInput(e) {
+  userData.value.cep = maskCEP(e.target.value)
+}
+/* ============================================== */
+
+async function registerUser () {
   try {
-    const response = await api.post('/user', userData.value);
-    
-    // Troque o alert por toast.success
-    toast.success('Usuário cadastrado com sucesso!');
-    console.log(response.data);
-
-    for (const key in userData.value) {
-      userData.value[key] = '';
-    }
-
+    const { data } = await api.post('/user', userData.value)
+    toast.success('Usuário cadastrado com sucesso!')
+    Object.keys(userData.value).forEach(k => (userData.value[k] = ''))
+    errors.value = {}
+    console.log(data)
   } catch (error) {
-    console.error('Erro ao cadastrar usuário:', error);
-    const errorMessage = error.response?.data?.message || 'Não foi possível completar o cadastro.';
-    
-    // Troque o alert por toast.error
-    toast.error(errorMessage);
+    console.error('Erro ao cadastrar usuário:', error)
+    const msg = error?.response?.data?.message || 'Não foi possível completar o cadastro.'
+    toast.error(msg)
   }
 }
 </script>
 
 <style scoped>
-.cadastro-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: var(--background-color);
+  padding: 2rem;
 }
-.cadastro-box {
+
+.card {
   width: 100%;
-  max-width: 500px;
-  padding: 2.5rem;
+  max-width: 980px;
+  background: var(--surface-color);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
-  background-color: var(--surface-color);
+  padding: 2rem;
 }
-h1 {
-  text-align: center;
-  margin-bottom: 2rem;
+
+.card__header { margin-bottom: 1rem; }
+.card__title {
+  margin: 0 0 .25rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-color);
 }
-.form-group {
-  margin-bottom: 1.5rem;
+.card__subtitle {
+  margin: 0;
+  color: var(--text-color-secondary);
 }
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+
+.section { margin-top: 1.25rem; }
+.section__title {
+  display: flex; align-items: center; gap: .5rem;
+  margin-bottom: .75rem;
 }
+.section__title h2 {
+  font-size: 1.125rem; margin: 0; color: var(--text-color);
+}
+.dot { width: .6rem; height: .6rem; border-radius: 999px; display: inline-block; }
+.dot--green  { background: var(--accent-green); }
+.dot--orange { background: var(--accent-orange); }
+
+.form { margin-top: .25rem; }
+.form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+.form__field { display: flex; flex-direction: column; gap: .4rem; }
+.form__field--full { grid-column: 1 / -1; }
+.form__field--2 { grid-column: span 2; }
+
+label { font-weight: 600; color: var(--text-color); }
 input {
-  width: 100%;
-  padding: 0.75rem;
+  height: 44px;
+  padding: 0 .9rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
+  color: var(--text-color);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
 }
-button {
+input::placeholder { color: var(--text-color-secondary); }
+input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  background: #fff;
+}
+
+.form__actions { margin-top: 1.25rem; }
+.form__note {
+  margin-top: .5rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+
+.btn {
+  height: 48px; padding: 0 1.25rem; border: 0; border-radius: var(--border-radius);
+  font-weight: 700; cursor: pointer; transition: transform .05s ease, filter .2s;
+}
+.btn--primary {
   width: 100%;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  background-color: var(--primary-color);
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: background-color 0.3s;
+  background: var(--primary-color);
+  color: #fff;
 }
-button:hover {
-  background-color: var(--primary-color-dark);
+.btn--primary:hover { filter: brightness(1.05); }
+.btn--primary:active { transform: translateY(1px); }
+
+.form__footnote {
+  margin-top: .875rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+}
+.link {
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+.link:hover { text-decoration: underline; }
+
+@media (max-width: 820px) {
+  .card { padding: 1.25rem; }
+  .form__grid { grid-template-columns: 1fr; }
+  .form__field--2 { grid-column: 1 / -1; }
+}
+
+/* Feedback de erro */
+input.invalid {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+.error {
+  color: #dc3545;
+  font-size: 0.85rem;
 }
 </style>
