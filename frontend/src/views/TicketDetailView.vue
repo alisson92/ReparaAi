@@ -1,8 +1,8 @@
 <template>
   <div class="page page--details">
     <div class="card">
-      <div v-if="isLoading" class="state state--loading">Carregando detalhes...</div>
-      <div v-else-if="error" class="state state--error">{{ error }}</div>
+      <div v-if="isLoading" class="loading">Carregando detalhes...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
 
       <div v-else-if="ticket" class="ticket-content">
         <header class="card__header">
@@ -51,6 +51,65 @@
   </div>
 </template>
 
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import api from '../services/api'
+import { GoogleMap, Marker } from 'vue3-google-map'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+
+const toast = useToast()
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+const ticket = ref(null)
+const isLoading = ref(true)
+const error = ref(null)
+const route = useRoute()
+const ticketId = route.params.idTicket
+const router = useRouter()
+
+const isModalVisible = ref(false)
+
+const markerPosition = computed(() => {
+  if (ticket.value?.localization) {
+    const [lat, lng] = ticket.value.localization.split(',').map(Number)
+    return { lat, lng }
+  }
+  return { lat: 0, lng: 0 }
+})
+
+function openConfirmationModal() {
+  isModalVisible.value = true
+}
+function closeModal() {
+  isModalVisible.value = false
+}
+
+async function deleteTicket() {
+  try {
+    await api.delete(`/tickets/${ticketId}`)
+    toast.success('Solicitação excluída com sucesso!')
+    router.push('/')
+  } catch (err) {
+    console.error("Erro ao excluir o ticket:", err)
+    toast.error("Não foi possível excluir a solicitação.")
+  } finally {
+    closeModal()
+  }
+}
+
+onMounted(async () => {
+  try {
+    const response = await api.get(`/tickets/${ticketId}`)
+    ticket.value = response.data.Ticket
+  } catch (err) {
+    console.error("Erro ao buscar detalhes do ticket:", err)
+    error.value = "Não foi possível carregar os detalhes da solicitação."
+  } finally {
+    isLoading.value = false
+  }
+})
+</script>
+
 <style scoped>
 .page {
   min-height: 100dvh;
@@ -91,10 +150,6 @@
   flex-wrap: wrap;
   gap: .5rem;
 }
-.meta-data strong {
-  color: var(--text-color);
-  font-weight: 600;
-}
 
 .map-container {
   margin: 1.5rem 0;
@@ -114,32 +169,35 @@
   border-radius: var(--border-radius);
   font-weight: 600;
   cursor: pointer;
-  transition: transform .05s ease, filter .2s;
-}
-.btn:active {
-  transform: translateY(1px);
+  transition: all .2s ease;
 }
 
 /* Editar = laranja suave */
 .btn--edit {
-  background: #f8a25b;
+  background: #f8a25b; /* laranja suave */
   color: #fff;
 }
-.btn--edit:hover { background: #f77f2f; }
+.btn--edit:hover {
+  background: #f77f2f; /* laranja oficial no hover */
+}
 
 /* Excluir = vermelho */
 .btn--delete {
   background: #dc3545;
   color: #fff;
 }
-.btn--delete:hover { background: #b02a37; }
+.btn--delete:hover {
+  background: #b02a37;
+}
 
 /* Cancelar = cinza neutro */
 .btn--secondary {
   background: #6c757d;
   color: #fff;
 }
-.btn--secondary:hover { background: #5a6268; }
+.btn--secondary:hover {
+  background: #5a6268;
+}
 
 /* Modal */
 .modal-overlay {
@@ -163,8 +221,6 @@
 .modal-content h3 {
   margin-bottom: 1rem;
   color: var(--text-color);
-  font-size: 1.3rem;
-  font-weight: 700;
 }
 .modal-content p {
   color: var(--text-color-secondary);
@@ -174,24 +230,5 @@
   display: flex;
   justify-content: center;
   gap: 1rem;
-}
-
-/* Estados */
-.state {
-  padding: 1rem 0;
-  color: var(--text-color-secondary);
-  text-align: center;
-}
-.state--error { color: #b02a37; }
-
-/* Responsivo */
-@media (max-width: 600px) {
-  .actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .actions .btn {
-    width: 100%;
-  }
 }
 </style>

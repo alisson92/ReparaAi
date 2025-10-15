@@ -3,29 +3,28 @@
     <div class="card">
       <h1 class="card__title">Editar Solicitação</h1>
 
-      <div v-if="isLoading" class="state state--loading">Carregando...</div>
-      <div v-else-if="error" class="state state--error">{{ error }}</div>
+      <div v-if="isLoading" class="loading">Carregando...</div>
 
       <form v-else @submit.prevent="updateTicket" class="form">
         <div class="form-group">
-          <label for="header">Título da Solicitação *</label>
+          <label for="header">Título da Solicitação</label>
           <input
             type="text"
             id="header"
             v-model="ticketData.header"
             required
-            placeholder="Ex: Buraco em frente ao número 123"
+            placeholder="Digite o título da solicitação"
           />
         </div>
 
         <div class="form-group">
-          <label for="description">Descrição Detalhada *</label>
+          <label for="description">Descrição Detalhada</label>
           <textarea
             id="description"
             v-model="ticketData.description"
             required
             rows="5"
-            placeholder="Forneça mais detalhes sobre o problema..."
+            placeholder="Explique melhor o problema..."
           ></textarea>
         </div>
 
@@ -47,13 +46,84 @@
           <span>Lon: {{ ticketData.localization_lon }}</span>
         </div>
 
-        <div class="form__actions">
-          <button type="submit" class="btn btn--primary">Salvar Alterações</button>
-        </div>
+        <button type="submit" class="btn btn--primary">
+          Salvar Alterações
+        </button>
       </form>
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import api from '../services/api'
+import { GoogleMap, Marker } from 'vue3-google-map'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+
+const toast = useToast()
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+const route = useRoute()
+const router = useRouter()
+const ticketId = route.params.idTicket
+
+const ticketData = ref({
+  header: '',
+  description: '',
+  localization_lat: 0,
+  localization_lon: 0,
+})
+
+const isLoading = ref(true)
+const mapCenter = ref({ lat: 0, lng: 0 })
+const markerPosition = ref({ lat: 0, lng: 0 })
+
+onMounted(async () => {
+  try {
+    const response = await api.get(`/tickets/${ticketId}`)
+    const ticket = response.data.Ticket
+
+    ticketData.value.header = ticket.header
+    ticketData.value.description = ticket.description
+
+    const [lat, lng] = ticket.localization.split(',').map(Number)
+    ticketData.value.localization_lat = lat
+    ticketData.value.localization_lon = lng
+
+    mapCenter.value = { lat, lng }
+    markerPosition.value = { lat, lng }
+  } catch (error) {
+    console.error('Erro ao buscar dados do ticket para edição:', error)
+    toast.error('Não foi possível carregar os dados para edição.')
+  } finally {
+    isLoading.value = false
+  }
+})
+
+function handleMapClick(event) {
+  const newCoords = { lat: event.latLng.lat(), lng: event.latLng.lng() }
+  markerPosition.value = newCoords
+  ticketData.value.localization_lat = newCoords.lat
+  ticketData.value.localization_lon = newCoords.lng
+}
+
+async function updateTicket() {
+  try {
+    const dataToSend = {
+      header: ticketData.value.header,
+      description: ticketData.value.description,
+      localization: `${ticketData.value.localization_lat},${ticketData.value.localization_lon}`,
+    }
+
+    await api.put(`/tickets/${ticketId}`, dataToSend)
+    toast.success('Solicitação atualizada com sucesso!')
+    router.push(`/solicitacao/${ticketId}`)
+  } catch (error) {
+    console.error('Erro ao atualizar a solicitação:', error)
+    toast.error('Não foi possível salvar as alterações.')
+  }
+}
+</script>
 
 <style scoped>
 .page {
@@ -81,26 +151,28 @@
   text-align: center;
 }
 
-/* Formulário */
 .form-group {
   margin-bottom: 1.5rem;
 }
+
 label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-color);
 }
+
 input,
 textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: 1rem;
   background: var(--surface-color);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 input:focus,
 textarea:focus {
   border-color: var(--primary-color);
@@ -108,7 +180,6 @@ textarea:focus {
   outline: none;
 }
 
-/* Coordenadas */
 .coords-display {
   display: flex;
   justify-content: space-around;
@@ -120,47 +191,23 @@ textarea:focus {
   color: var(--text-color-secondary);
 }
 
-/* Ações */
-.form__actions {
-  margin-top: 1rem;
-}
 .btn {
   padding: 0.85rem 1.5rem;
   border: none;
   border-radius: var(--border-radius);
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.05s ease, filter 0.2s;
+  transition: all 0.2s ease;
   width: 100%;
   font-size: 1rem;
 }
-.btn:active {
-  transform: translateY(1px);
-}
 
-/* Botão primário */
+/* Alterado: agora o botão usa o azul padrão */
 .btn--primary {
   background: var(--primary-color);
   color: #fff;
 }
 .btn--primary:hover {
   filter: brightness(1.1);
-}
-
-/* Estados */
-.state {
-  padding: 1rem 0;
-  text-align: center;
-  color: var(--text-color-secondary);
-}
-.state--error {
-  color: #b02a37;
-}
-
-/* Responsivo */
-@media (max-width: 600px) {
-  .card {
-    padding: 1.25rem;
-  }
 }
 </style>
