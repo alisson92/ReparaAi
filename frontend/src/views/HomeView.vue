@@ -7,7 +7,11 @@
           <h1 class="home__title">Solicitações Abertas</h1>
           <p class="home__subtitle">Acompanhe, edite e crie novas solicitações.</p>
         </div>
-        <RouterLink to="/solicitacao" class="btn btn--cta">
+        <RouterLink
+          to="/solicitacao"
+          class="btn btn--cta"
+          aria-label="Criar nova solicitação"
+        >
           Nova Solicitação
         </RouterLink>
       </header>
@@ -19,7 +23,7 @@
           type="search"
           class="input input--search"
           placeholder="Buscar por título ou descrição..."
-          aria-label="Buscar"
+          aria-label="Buscar solicitações"
         />
         <span class="home__count" v-if="!isLoading && !error">
           {{ filteredTickets.length }} resultado{{ filteredTickets.length === 1 ? '' : 's' }}
@@ -77,7 +81,7 @@ onMounted(async () => {
     const response = await api.get('/tickets')
     tickets.value = (response.data.Tickets || []).map(t => ({
       ...t,
-      status: t.status || 'aberto' // fallback caso backend ainda não mande
+      status: t.status || 'aberto'
     }))
   } catch (e) {
     console.error("Erro ao buscar os tickets:", e)
@@ -200,6 +204,9 @@ function formatStatus(status) {
   box-shadow: 0 8px 15px rgba(0,0,0,0.08);
   border-color: color-mix(in srgb, var(--primary-color) 15%, var(--border-color));
 }
+.ticket-card:active {
+  transform: translateY(1px);
+}
 
 /* Cabeçalho do card */
 .ticket-header {
@@ -213,13 +220,6 @@ function formatStatus(status) {
   font-size: 1.125rem;
   color: var(--text-color);
 }
-.ticket-meta {
-  display: flex;
-  gap: .5rem;
-  color: var(--text-color-secondary);
-  font-size: .9rem;
-  flex-wrap: wrap;
-}
 
 /* Descrição */
 .ticket-desc {
@@ -227,7 +227,7 @@ function formatStatus(status) {
   color: var(--text-color);
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* limita em 3 linhas */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -251,6 +251,7 @@ function formatStatus(status) {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 .status.aberto {
   background: var(--primary-color);
@@ -291,6 +292,7 @@ function formatStatus(status) {
   color: #fff;
 }
 .btn--cta:hover { filter: brightness(1.08); }
+.btn--cta:active { transform: translateY(1px); }
 
 /* Responsivo */
 @media (max-width: 860px) {

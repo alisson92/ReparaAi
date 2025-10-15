@@ -26,7 +26,7 @@
                 :class="{ invalid: errors.name }"
                 @blur="validateField('name')"
               />
-              <small v-if="errors.name" class="error">{{ errors.name }}</small>
+              <small v-if="errors.name" class="error">⚠️ {{ errors.name }}</small>
             </div>
 
             <div class="form__field">
@@ -40,7 +40,7 @@
                 :class="{ invalid: errors.email }"
                 @blur="validateField('email')"
               />
-              <small v-if="errors.email" class="error">{{ errors.email }}</small>
+              <small v-if="errors.email" class="error">⚠️ {{ errors.email }}</small>
             </div>
 
             <div class="form__field">
@@ -54,7 +54,7 @@
                 :class="{ invalid: errors.password }"
                 @blur="validateField('password')"
               />
-              <small v-if="errors.password" class="error">{{ errors.password }}</small>
+              <small v-if="errors.password" class="error">⚠️ {{ errors.password }}</small>
             </div>
 
             <div class="form__field">
@@ -62,13 +62,15 @@
               <input
                 id="cpf"
                 type="text"
-                v-model="userData.cpf"
+                :value="userData.cpf"
+                @input="onCpfInput"
+                inputmode="numeric"
                 required
                 placeholder="000.000.000-00"
                 :class="{ invalid: errors.cpf }"
                 @blur="validateField('cpf')"
               />
-              <small v-if="errors.cpf" class="error">{{ errors.cpf }}</small>
+              <small v-if="errors.cpf" class="error">⚠️ {{ errors.cpf }}</small>
             </div>
 
             <div class="form__field">
@@ -76,13 +78,15 @@
               <input
                 id="phone"
                 type="tel"
-                v-model="userData.phone"
+                :value="userData.phone"
+                @input="onPhoneInput"
+                inputmode="numeric"
                 required
                 placeholder="(11) 90000-0000"
                 :class="{ invalid: errors.phone }"
                 @blur="validateField('phone')"
               />
-              <small v-if="errors.phone" class="error">{{ errors.phone }}</small>
+              <small v-if="errors.phone" class="error">⚠️ {{ errors.phone }}</small>
             </div>
 
             <div class="form__field">
@@ -95,7 +99,7 @@
                 :class="{ invalid: errors.birthDate }"
                 @blur="validateField('birthDate')"
               />
-              <small v-if="errors.birthDate" class="error">{{ errors.birthDate }}</small>
+              <small v-if="errors.birthDate" class="error">⚠️ {{ errors.birthDate }}</small>
             </div>
           </div>
         </section>
@@ -113,13 +117,15 @@
               <input
                 id="cep"
                 type="text"
-                v-model="userData.cep"
+                :value="userData.cep"
+                @input="onCepInput"
+                inputmode="numeric"
                 required
                 placeholder="00000-000"
                 :class="{ invalid: errors.cep }"
                 @blur="validateField('cep')"
               />
-              <small v-if="errors.cep" class="error">{{ errors.cep }}</small>
+              <small v-if="errors.cep" class="error">⚠️ {{ errors.cep }}</small>
             </div>
 
             <div class="form__field form__field--2">
@@ -133,7 +139,7 @@
                 :class="{ invalid: errors.street }"
                 @blur="validateField('street')"
               />
-              <small v-if="errors.street" class="error">{{ errors.street }}</small>
+              <small v-if="errors.street" class="error">⚠️ {{ errors.street }}</small>
             </div>
 
             <div class="form__field">
@@ -147,7 +153,7 @@
                 :class="{ invalid: errors.number }"
                 @blur="validateField('number')"
               />
-              <small v-if="errors.number" class="error">{{ errors.number }}</small>
+              <small v-if="errors.number" class="error">⚠️ {{ errors.number }}</small>
             </div>
 
             <div class="form__field">
@@ -161,7 +167,7 @@
                 :class="{ invalid: errors.neighborhood }"
                 @blur="validateField('neighborhood')"
               />
-              <small v-if="errors.neighborhood" class="error">{{ errors.neighborhood }}</small>
+              <small v-if="errors.neighborhood" class="error">⚠️ {{ errors.neighborhood }}</small>
             </div>
 
             <div class="form__field">
@@ -175,7 +181,7 @@
                 :class="{ invalid: errors.city }"
                 @blur="validateField('city')"
               />
-              <small v-if="errors.city" class="error">{{ errors.city }}</small>
+              <small v-if="errors.city" class="error">⚠️ {{ errors.city }}</small>
             </div>
 
             <div class="form__field">
@@ -189,13 +195,14 @@
                 :class="{ invalid: errors.state }"
                 @blur="validateField('state')"
               />
-              <small v-if="errors.state" class="error">{{ errors.state }}</small>
+              <small v-if="errors.state" class="error">⚠️ {{ errors.state }}</small>
             </div>
           </div>
         </section>
 
         <div class="form__actions">
           <button class="btn btn--primary" type="submit">Cadastrar</button>
+          <p class="form__note">* Campos obrigatórios</p>
         </div>
 
         <p class="form__footnote">
@@ -238,6 +245,53 @@ function validateField(field) {
     errors.value[field] = ''
   }
 }
+
+/* ========= Máscaras (sem dependências) ========= */
+function onlyDigits(v) {
+  return (v || '').replace(/\D/g, '')
+}
+
+function maskCPF(v) {
+  let d = onlyDigits(v).slice(0, 11)
+  if (d.length > 9) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4')
+  if (d.length > 6) return d.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3')
+  if (d.length > 3) return d.replace(/(\d{3})(\d{0,3})/, '$1.$2')
+  return d
+}
+
+function maskCEP(v) {
+  const d = onlyDigits(v).slice(0, 8)
+  return d.length > 5 ? d.replace(/(\d{5})(\d{0,3})/, '$1-$2') : d
+}
+
+function maskPhoneBR(v) {
+  const d = onlyDigits(v).slice(0, 11)
+  if (d.length <= 10) {
+    // Fixo/antigo: (##) ####-#### 
+    return d
+      .replace(/^(\d{0,2})/, '($1')
+      .replace(/^\((\d{2})(\d{0,4})/, '($1) $2')
+      .replace(/^\((\d{2})\)\s(\d{4})(\d{0,4}).*/, '($1) $2-$3')
+      .replace(/\) $/, ') ')
+  }
+  // Celular: (##) #####-#### 
+  return d
+    .replace(/^(\d{0,2})/, '($1')
+    .replace(/^\((\d{2})(\d{0,5})/, '($1) $2')
+    .replace(/^\((\d{2})\)\s(\d{5})(\d{0,4}).*/, '($1) $2-$3')
+    .replace(/\) $/, ') ')
+}
+
+function onCpfInput(e) {
+  userData.value.cpf = maskCPF(e.target.value)
+}
+function onPhoneInput(e) {
+  userData.value.phone = maskPhoneBR(e.target.value)
+}
+function onCepInput(e) {
+  userData.value.cep = maskCEP(e.target.value)
+}
+/* ============================================== */
 
 async function registerUser () {
   try {
@@ -325,6 +379,12 @@ input:focus {
 }
 
 .form__actions { margin-top: 1.25rem; }
+.form__note {
+  margin-top: .5rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+
 .btn {
   height: 48px; padding: 0 1.25rem; border: 0; border-radius: var(--border-radius);
   font-weight: 700; cursor: pointer; transition: transform .05s ease, filter .2s;
@@ -355,7 +415,7 @@ input:focus {
   .form__field--2 { grid-column: 1 / -1; }
 }
 
-/* 🔸 Apenas adições para feedback de erro (não altera o resto) */
+/* Feedback de erro */
 input.invalid {
   border-color: #dc3545;
   background: #fff5f5;

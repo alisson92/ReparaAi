@@ -17,7 +17,10 @@
                 v-model="credentials.email"
                 placeholder="Insira seu login"
                 required
+                :class="{ invalid: errors.email }"
+                @blur="validateField('email')"
               />
+              <small v-if="errors.email" class="error">{{ errors.email }}</small>
             </div>
 
             <div class="form-group">
@@ -28,7 +31,10 @@
                 v-model="credentials.password"
                 placeholder="Insira sua senha"
                 required
+                :class="{ invalid: errors.password }"
+                @blur="validateField('password')"
               />
+              <small v-if="errors.password" class="error">{{ errors.password }}</small>
             </div>
 
             <a href="#" class="forgot-password">Esqueceu sua senha?</a>
@@ -55,8 +61,17 @@ import api from '../services/api'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 
 const credentials = ref({ email: '', password: '' })
+const errors = ref({})
 const router = useRouter()
 const toast = useToast()
+
+function validateField(field) {
+  if (!credentials.value[field]) {
+    errors.value[field] = 'Campo obrigatório'
+  } else {
+    errors.value[field] = ''
+  }
+}
 
 async function handleLogin() {
   try {
@@ -81,7 +96,7 @@ async function handleLogin() {
   width: 100vw;
   height: 100vh;
   padding: 2rem;
-  background-color: var(--background-color); /* fundo suave */
+  background-color: var(--background-color);
 }
 
 .content-wrapper {
@@ -132,6 +147,7 @@ async function handleLogin() {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: var(--text-color);
 }
 .form-group input {
   width: 100%;
@@ -145,6 +161,16 @@ async function handleLogin() {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px var(--focus-ring);
   outline: none;
+}
+
+/* Feedback de erro */
+input.invalid {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+.error {
+  color: #dc3545;
+  font-size: 0.85rem;
 }
 
 /* Links auxiliares */
@@ -164,30 +190,42 @@ async function handleLogin() {
 /* Botão principal */
 button {
   width: 100%;
+  height: 48px;
   padding: 0.9rem 1.5rem;
   border: none;
-  background-color: var(--primary-color); /* azul padrão */
+  background-color: var(--primary-color);
   color: white;
   border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
-  transition: all 0.3s ease;
+  transition: transform 0.05s ease, filter 0.2s;
 }
-button:hover {
-  filter: brightness(1.1);
-}
+button:hover { filter: brightness(1.1); }
+button:active { transform: translateY(1px); }
 
 /* Link de cadastro */
 .register-link {
   margin-top: 2rem;
   text-align: center;
   font-size: 0.9rem;
-  color: #555;
+  color: var(--text-color-secondary);
 }
 .register-link a {
-  color: var(--secondary-color); /* laranja */
+  color: var(--secondary-color);
   font-weight: bold;
+  text-decoration: none;
+}
+.register-link a:hover { text-decoration: underline; }
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .content-wrapper {
+    flex-direction: column;
+    aspect-ratio: auto;
+  }
+  .branding-panel { display: none; }
+  .form-panel { flex: unset; padding: 2rem; }
 }
 </style>

@@ -16,7 +16,10 @@
             v-model="ticketData.header"
             required
             placeholder="Ex: Buraco na rua em frente ao número 123"
+            :class="{ invalid: errors.header }"
+            @blur="validateField('header')"
           />
+          <small v-if="errors.header" class="error">{{ errors.header }}</small>
         </div>
 
         <!-- Descrição -->
@@ -28,21 +31,26 @@
             required
             rows="5"
             placeholder="Forneça mais detalhes sobre o problema..."
+            :class="{ invalid: errors.description }"
+            @blur="validateField('description')"
           ></textarea>
+          <small v-if="errors.description" class="error">{{ errors.description }}</small>
         </div>
 
         <!-- Mapa -->
         <div class="form__field form__field--full">
           <label>Localização (clique no mapa para definir)</label>
-          <GoogleMap
-            :api-key="apiKey"
-            style="width: 100%; height: 300px; border-radius: var(--border-radius); overflow: hidden;"
-            :center="mapCenter"
-            :zoom="15"
-            @click="handleMapClick"
-          >
-            <Marker :options="{ position: markerPosition }" />
-          </GoogleMap>
+          <div class="map-wrapper">
+            <GoogleMap
+              :api-key="apiKey"
+              style="width: 100%; height: 300px"
+              :center="mapCenter"
+              :zoom="15"
+              @click="handleMapClick"
+            >
+              <Marker :options="{ position: markerPosition }" />
+            </GoogleMap>
+          </div>
         </div>
 
         <!-- Botão -->
@@ -71,6 +79,16 @@ const ticketData = ref({
   description: '',
 })
 
+const errors = ref({})
+
+function validateField(field) {
+  if (!ticketData.value[field]) {
+    errors.value[field] = 'Campo obrigatório'
+  } else {
+    errors.value[field] = ''
+  }
+}
+
 function handleMapClick(event) {
   markerPosition.value = { lat: event.latLng.lat(), lng: event.latLng.lng() }
 }
@@ -89,6 +107,7 @@ async function createTicket() {
 
     ticketData.value.header = ''
     ticketData.value.description = ''
+    errors.value = {}
   } catch (error) {
     console.error('Erro ao criar a solicitação:', error)
     const errorMessage = error.response?.data?.message || 'Não foi possível enviar a solicitação.'
@@ -119,7 +138,8 @@ async function createTicket() {
 .card__title {
   margin: 0 0 .25rem 0;
   font-size: 1.75rem;
-  color: var(--text-color);
+  font-weight: 700;
+  color: var(--primary-color);
 }
 .card__subtitle {
   margin: 0;
@@ -159,6 +179,14 @@ input:focus, textarea:focus {
   outline: none;
 }
 
+/* Map */
+.map-wrapper {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+}
+
 /* Botão */
 .form__actions { margin-top: .5rem; }
 .btn {
@@ -177,6 +205,16 @@ input:focus, textarea:focus {
 }
 .btn--primary:hover { filter: brightness(1.05); }
 .btn--primary:active { transform: translateY(1px); }
+
+/* Feedback de erro */
+input.invalid, textarea.invalid {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+.error {
+  color: #dc3545;
+  font-size: 0.85rem;
+}
 
 /* Responsivo */
 @media (max-width: 820px) {
