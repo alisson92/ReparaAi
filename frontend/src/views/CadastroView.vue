@@ -123,14 +123,15 @@
                 type="text"
                 :value="userData.cep"
                 @input="onCepInput($event)"
+                @blur="fetchAddressByCep"
                 inputmode="numeric"
                 maxlength="9"
                 required
                 placeholder="00000-000"
                 :class="{ invalid: errors.cep }"
-                @blur="validateField('cep')"
               />
               <small v-if="errors.cep" class="error">⚠️ {{ errors.cep }}</small>
+              <small v-if="isFetchingCep" class="loading">🔄 Buscando endereço...</small>
             </div>
 
             <div class="form__field form__field--2">
@@ -141,6 +142,7 @@
                 v-model="userData.street"
                 required
                 placeholder="Nome da rua/avenida"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.street }"
                 @blur="validateField('street')"
                 @input="userData.street = onlyLetters(userData.street)"
@@ -171,6 +173,7 @@
                 v-model="userData.neighborhood"
                 required
                 placeholder="Bairro"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.neighborhood }"
                 @blur="validateField('neighborhood')"
                 @input="userData.neighborhood = onlyLetters(userData.neighborhood)"
@@ -186,6 +189,7 @@
                 v-model="userData.city"
                 required
                 placeholder="Cidade"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.city }"
                 @blur="validateField('city')"
                 @input="userData.city = onlyLetters(userData.city)"
@@ -201,6 +205,7 @@
                 v-model="userData.state"
                 required
                 placeholder="UF"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.state }"
                 @blur="validateField('state')"
                 @input="userData.state = onlyLetters(userData.state)"
@@ -247,6 +252,7 @@ const userData = ref({
 })
 
 const errors = ref({})
+const isFetchingCep = ref(false)
 
 function validateField(field) {
   if (!userData.value[field]) {
@@ -344,6 +350,42 @@ function onCepInput(e) {
   userData.value.cep = input.value
 }
 /* ============================================== */
+
+async function fetchAddressByCep() {
+  const cep = userData.value.cep.replace(/\D/g, '')
+  if (cep.length !== 8) return
+
+  isFetchingCep.value = true // inicia o carregamento
+  const start = Date.now()
+
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    const data = await res.json()
+
+    const elapsed = Date.now() - start
+    const minDelay = 500 // garante pelo menos 0.5s de feedback visual
+
+    if (elapsed < minDelay) {
+      await new Promise(resolve => setTimeout(resolve, minDelay - elapsed))
+  }
+
+    if (data.erro) {
+      toast.warning('CEP não encontrado 😕')
+      return
+    }
+
+    // Preenche os campos automaticamente
+    userData.value.street = data.logradouro || ''
+    userData.value.neighborhood = data.bairro || ''
+    userData.value.city = data.localidade || ''
+    userData.value.state = data.uf || ''
+  } catch (err) {
+    console.error('Erro ao buscar CEP:', err)
+    toast.error('Não foi possível buscar o endereço.')
+  } finally {
+    isFetchingCep.value = false // encerra o carregamento
+  }
+}
 
 async function registerUser () {
   try {
@@ -475,5 +517,22 @@ input.invalid {
 .error {
   color: #dc3545;
   font-size: 0.85rem;
+}
+
+.loading {
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  animation: fade 1s infinite alternate;
+}
+
+@keyframes fade {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 </style>
