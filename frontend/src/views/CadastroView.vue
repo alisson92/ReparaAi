@@ -25,6 +25,7 @@
                 placeholder="Ex.: Maria Silva"
                 :class="{ invalid: errors.name }"
                 @blur="validateField('name')"
+                @input="userData.name = userData.name.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')"
               />
               <small v-if="errors.name" class="error">⚠️ {{ errors.name }}</small>
             </div>
@@ -63,8 +64,9 @@
                 id="cpf"
                 type="text"
                 :value="userData.cpf"
-                @input="onCpfInput"
+                @input="onCpfInput($event)"
                 inputmode="numeric"
+                maxlength="14"
                 required
                 placeholder="000.000.000-00"
                 :class="{ invalid: errors.cpf }"
@@ -79,8 +81,9 @@
                 id="phone"
                 type="tel"
                 :value="userData.phone"
-                @input="onPhoneInput"
+                @input="onPhoneInput($event)"
                 inputmode="numeric"
+                maxlength="15"
                 required
                 placeholder="(11) 90000-0000"
                 :class="{ invalid: errors.phone }"
@@ -98,6 +101,7 @@
                 required
                 :class="{ invalid: errors.birthDate }"
                 @blur="validateField('birthDate')"
+                @input="limitBirthYear($event)"
               />
               <small v-if="errors.birthDate" class="error">⚠️ {{ errors.birthDate }}</small>
             </div>
@@ -118,8 +122,9 @@
                 id="cep"
                 type="text"
                 :value="userData.cep"
-                @input="onCepInput"
+                @input="onCepInput($event)"
                 inputmode="numeric"
+                maxlength="9"
                 required
                 placeholder="00000-000"
                 :class="{ invalid: errors.cep }"
@@ -138,6 +143,7 @@
                 placeholder="Nome da rua/avenida"
                 :class="{ invalid: errors.street }"
                 @blur="validateField('street')"
+                @input="userData.street = onlyLetters(userData.street)"
               />
               <small v-if="errors.street" class="error">⚠️ {{ errors.street }}</small>
             </div>
@@ -152,6 +158,7 @@
                 placeholder="123"
                 :class="{ invalid: errors.number }"
                 @blur="validateField('number')"
+                @input="userData.number = onlyNumbers(userData.number)"
               />
               <small v-if="errors.number" class="error">⚠️ {{ errors.number }}</small>
             </div>
@@ -166,6 +173,7 @@
                 placeholder="Bairro"
                 :class="{ invalid: errors.neighborhood }"
                 @blur="validateField('neighborhood')"
+                @input="userData.neighborhood = onlyLetters(userData.neighborhood)"
               />
               <small v-if="errors.neighborhood" class="error">⚠️ {{ errors.neighborhood }}</small>
             </div>
@@ -180,6 +188,7 @@
                 placeholder="Cidade"
                 :class="{ invalid: errors.city }"
                 @blur="validateField('city')"
+                @input="userData.city = onlyLetters(userData.city)"
               />
               <small v-if="errors.city" class="error">⚠️ {{ errors.city }}</small>
             </div>
@@ -194,6 +203,7 @@
                 placeholder="UF"
                 :class="{ invalid: errors.state }"
                 @blur="validateField('state')"
+                @input="userData.state = onlyLetters(userData.state)"
               />
               <small v-if="errors.state" class="error">⚠️ {{ errors.state }}</small>
             </div>
@@ -282,14 +292,56 @@ function maskPhoneBR(v) {
     .replace(/\) $/, ') ')
 }
 
+// Permite apenas letras, acentos e espaços
+function onlyLetters(v) {
+  return (v || '').replace(/[^a-zA-ZÀ-ÿ\s]/g, '')
+}
+
+// Permite apenas números
+function onlyNumbers(v) {
+  return (v || '').replace(/\D/g, '')
+}
+
+// Limita o ano em campos de data para 4 dígitos
+function limitBirthYear(e) {
+  const value = e.target.value
+
+  // Se o formato for yyyy-mm-dd, divide e corrige apenas o ano
+  const parts = value.split('-')
+  if (parts[0] && parts[0].length > 4) {
+    parts[0] = parts[0].slice(0, 4)
+    e.target.value = parts.join('-')
+  }
+
+  // Atualiza o v-model manualmente
+  userData.value.birthDate = e.target.value
+}
+
+// CPF: bloqueia letras e limita a 11 dígitos
 function onCpfInput(e) {
-  userData.value.cpf = maskCPF(e.target.value)
+  e.preventDefault?.() // evita problemas em navegadores antigos
+  const input = e.target
+  const value = input.value.replace(/\D/g, '').slice(0, 11) // só números e limite
+  input.value = maskCPF(value)
+  userData.value.cpf = input.value
 }
+
+// Telefone: bloqueia letras e limita a 11 dígitos
 function onPhoneInput(e) {
-  userData.value.phone = maskPhoneBR(e.target.value)
+  e.preventDefault?.()
+  const input = e.target
+  const value = input.value.replace(/\D/g, '').slice(0, 11)
+  input.value = maskPhoneBR(value)
+  userData.value.phone = input.value
 }
+
+// CEP: bloqueia letras e limita a 8 dígitos
 function onCepInput(e) {
-  userData.value.cep = maskCEP(e.target.value)
+  e.preventDefault?.()
+  const input = e.target
+  const value = input.value.replace(/\D/g, '').slice(0, 8)
+  input.value = maskCEP(value)
+  userData.value.cep = input.value
 }
 /* ============================================== */
 
