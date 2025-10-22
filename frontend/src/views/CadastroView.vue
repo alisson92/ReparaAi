@@ -216,7 +216,9 @@
         </section>
 
         <div class="form__actions">
-          <button class="btn btn--primary" type="submit">Cadastrar</button>
+          <button class="btn btn--primary" type="submit" :disabled="isSubmitting">
+            {{ isSubmitting ? 'Cadastrando...' : 'Cadastrar' }}
+          </button>
           <p class="form__note">* Campos obrigatórios</p>
         </div>
 
@@ -233,7 +235,9 @@
 import { ref } from 'vue'
 import api from '../services/api'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const toast = useToast()
 
 const userData = ref({
@@ -253,6 +257,7 @@ const userData = ref({
 
 const errors = ref({})
 const isFetchingCep = ref(false)
+const isSubmitting = ref(false)
 
 function validateField(field) {
   if (!userData.value[field]) {
@@ -388,16 +393,23 @@ async function fetchAddressByCep() {
 }
 
 async function registerUser () {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+
   try {
     const { data } = await api.post('/user', userData.value)
-    toast.success('Usuário cadastrado com sucesso!')
+    toast.success('🎉 Cadastro realizado com sucesso! Seja bem-vindo(a) ao ReparaAí!')
+
     Object.keys(userData.value).forEach(k => (userData.value[k] = ''))
     errors.value = {}
-    console.log(data)
+
+    setTimeout(() => router.push('/login'), 3000)
   } catch (error) {
     console.error('Erro ao cadastrar usuário:', error)
     const msg = error?.response?.data?.message || 'Não foi possível completar o cadastro.'
     toast.error(msg)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
