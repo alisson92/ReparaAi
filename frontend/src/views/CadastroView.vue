@@ -25,6 +25,7 @@
                 placeholder="Ex.: Maria Silva"
                 :class="{ invalid: errors.name }"
                 @blur="validateField('name')"
+                @input="userData.name = userData.name.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')"
               />
               <small v-if="errors.name" class="error">⚠️ {{ errors.name }}</small>
             </div>
@@ -63,8 +64,9 @@
                 id="cpf"
                 type="text"
                 :value="userData.cpf"
-                @input="onCpfInput"
+                @input="onCpfInput($event)"
                 inputmode="numeric"
+                maxlength="14"
                 required
                 placeholder="000.000.000-00"
                 :class="{ invalid: errors.cpf }"
@@ -79,8 +81,9 @@
                 id="phone"
                 type="tel"
                 :value="userData.phone"
-                @input="onPhoneInput"
+                @input="onPhoneInput($event)"
                 inputmode="numeric"
+                maxlength="15"
                 required
                 placeholder="(11) 90000-0000"
                 :class="{ invalid: errors.phone }"
@@ -98,6 +101,7 @@
                 required
                 :class="{ invalid: errors.birthDate }"
                 @blur="validateField('birthDate')"
+                @input="limitBirthYear($event)"
               />
               <small v-if="errors.birthDate" class="error">⚠️ {{ errors.birthDate }}</small>
             </div>
@@ -118,14 +122,16 @@
                 id="cep"
                 type="text"
                 :value="userData.cep"
-                @input="onCepInput"
+                @input="onCepInput($event)"
+                @blur="fetchAddressByCep"
                 inputmode="numeric"
+                maxlength="9"
                 required
                 placeholder="00000-000"
                 :class="{ invalid: errors.cep }"
-                @blur="validateField('cep')"
               />
               <small v-if="errors.cep" class="error">⚠️ {{ errors.cep }}</small>
+              <small v-if="isFetchingCep" class="loading">🔄 Buscando endereço...</small>
             </div>
 
             <div class="form__field form__field--2">
@@ -136,8 +142,10 @@
                 v-model="userData.street"
                 required
                 placeholder="Nome da rua/avenida"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.street }"
                 @blur="validateField('street')"
+                @input="userData.street = onlyLetters(userData.street)"
               />
               <small v-if="errors.street" class="error">⚠️ {{ errors.street }}</small>
             </div>
@@ -152,6 +160,7 @@
                 placeholder="123"
                 :class="{ invalid: errors.number }"
                 @blur="validateField('number')"
+                @input="userData.number = onlyNumbers(userData.number)"
               />
               <small v-if="errors.number" class="error">⚠️ {{ errors.number }}</small>
             </div>
@@ -164,8 +173,10 @@
                 v-model="userData.neighborhood"
                 required
                 placeholder="Bairro"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.neighborhood }"
                 @blur="validateField('neighborhood')"
+                @input="userData.neighborhood = onlyLetters(userData.neighborhood)"
               />
               <small v-if="errors.neighborhood" class="error">⚠️ {{ errors.neighborhood }}</small>
             </div>
@@ -178,8 +189,10 @@
                 v-model="userData.city"
                 required
                 placeholder="Cidade"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.city }"
                 @blur="validateField('city')"
+                @input="userData.city = onlyLetters(userData.city)"
               />
               <small v-if="errors.city" class="error">⚠️ {{ errors.city }}</small>
             </div>
@@ -192,8 +205,10 @@
                 v-model="userData.state"
                 required
                 placeholder="UF"
+                :disabled="isFetchingCep"
                 :class="{ invalid: errors.state }"
                 @blur="validateField('state')"
+                @input="userData.state = onlyLetters(userData.state)"
               />
               <small v-if="errors.state" class="error">⚠️ {{ errors.state }}</small>
             </div>
@@ -201,7 +216,9 @@
         </section>
 
         <div class="form__actions">
-          <button class="btn btn--primary" type="submit">Cadastrar</button>
+          <button class="btn btn--primary" type="submit" :disabled="isSubmitting">
+            {{ isSubmitting ? 'Cadastrando...' : 'Cadastrar' }}
+          </button>
           <p class="form__note">* Campos obrigatórios</p>
         </div>
 
@@ -218,7 +235,9 @@
 import { ref } from 'vue'
 import api from '../services/api'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const toast = useToast()
 
 const userData = ref({
@@ -237,6 +256,8 @@ const userData = ref({
 })
 
 const errors = ref({})
+const isFetchingCep = ref(false)
+const isSubmitting = ref(false)
 
 function validateField(field) {
   if (!userData.value[field]) {
@@ -282,28 +303,113 @@ function maskPhoneBR(v) {
     .replace(/\) $/, ') ')
 }
 
+// Permite apenas letras, acentos e espaços
+function onlyLetters(v) {
+  return (v || '').replace(/[^a-zA-ZÀ-ÿ\s]/g, '')
+}
+
+// Permite apenas números
+function onlyNumbers(v) {
+  return (v || '').replace(/\D/g, '')
+}
+
+// Limita o ano em campos de data para 4 dígitos
+function limitBirthYear(e) {
+  const value = e.target.value
+
+  // Se o formato for yyyy-mm-dd, divide e corrige apenas o ano
+  const parts = value.split('-')
+  if (parts[0] && parts[0].length > 4) {
+    parts[0] = parts[0].slice(0, 4)
+    e.target.value = parts.join('-')
+  }
+
+  // Atualiza o v-model manualmente
+  userData.value.birthDate = e.target.value
+}
+
+// CPF: bloqueia letras e limita a 11 dígitos
 function onCpfInput(e) {
-  userData.value.cpf = maskCPF(e.target.value)
+  e.preventDefault?.() // evita problemas em navegadores antigos
+  const input = e.target
+  const value = input.value.replace(/\D/g, '').slice(0, 11) // só números e limite
+  input.value = maskCPF(value)
+  userData.value.cpf = input.value
 }
+
+// Telefone: bloqueia letras e limita a 11 dígitos
 function onPhoneInput(e) {
-  userData.value.phone = maskPhoneBR(e.target.value)
+  e.preventDefault?.()
+  const input = e.target
+  const value = input.value.replace(/\D/g, '').slice(0, 11)
+  input.value = maskPhoneBR(value)
+  userData.value.phone = input.value
 }
+
+// CEP: bloqueia letras e limita a 8 dígitos
 function onCepInput(e) {
-  userData.value.cep = maskCEP(e.target.value)
+  e.preventDefault?.()
+  const input = e.target
+  const value = input.value.replace(/\D/g, '').slice(0, 8)
+  input.value = maskCEP(value)
+  userData.value.cep = input.value
 }
 /* ============================================== */
 
+async function fetchAddressByCep() {
+  const cep = userData.value.cep.replace(/\D/g, '')
+  if (cep.length !== 8) return
+
+  isFetchingCep.value = true // inicia o carregamento
+  const start = Date.now()
+
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    const data = await res.json()
+
+    const elapsed = Date.now() - start
+    const minDelay = 500 // garante pelo menos 0.5s de feedback visual
+
+    if (elapsed < minDelay) {
+      await new Promise(resolve => setTimeout(resolve, minDelay - elapsed))
+  }
+
+    if (data.erro) {
+      toast.warning('CEP não encontrado 😕')
+      return
+    }
+
+    // Preenche os campos automaticamente
+    userData.value.street = data.logradouro || ''
+    userData.value.neighborhood = data.bairro || ''
+    userData.value.city = data.localidade || ''
+    userData.value.state = data.uf || ''
+  } catch (err) {
+    console.error('Erro ao buscar CEP:', err)
+    toast.error('Não foi possível buscar o endereço.')
+  } finally {
+    isFetchingCep.value = false // encerra o carregamento
+  }
+}
+
 async function registerUser () {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+
   try {
     const { data } = await api.post('/user', userData.value)
-    toast.success('Usuário cadastrado com sucesso!')
+    toast.success('🎉 Cadastro realizado com sucesso! Seja bem-vindo(a) ao ReparaAí!')
+
     Object.keys(userData.value).forEach(k => (userData.value[k] = ''))
     errors.value = {}
-    console.log(data)
+
+    setTimeout(() => router.push('/login'), 3000)
   } catch (error) {
     console.error('Erro ao cadastrar usuário:', error)
     const msg = error?.response?.data?.message || 'Não foi possível completar o cadastro.'
     toast.error(msg)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -423,5 +529,22 @@ input.invalid {
 .error {
   color: #dc3545;
   font-size: 0.85rem;
+}
+
+.loading {
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  animation: fade 1s infinite alternate;
+}
+
+@keyframes fade {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 </style>
