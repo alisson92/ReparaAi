@@ -37,6 +37,23 @@
           <small v-if="errors.description" class="error">{{ errors.description }}</small>
         </div>
 
+        <div class="form__field form__field--full">
+  <label for="image">Foto do Problema (opcional)</label>
+  <input
+    id="image"
+    type="file"
+    accept="image/*"
+    @change="onFileChange"
+  />
+  <small class="form__note">Você pode tirar uma foto ou escolher um arquivo da galeria.</small>
+
+  <!-- Pré-visualização -->
+  <div v-if="previewImage" class="preview">
+    <img :src="previewImage" alt="Prévia da imagem selecionada" />
+    <button type="button" class="btn-remove" @click="removeImage">Remover</button>
+  </div>
+</div>
+
         <!-- Mapa -->
         <div class="form__field form__field--full">
           <label>Localização (clique no mapa para definir)</label>
@@ -76,9 +93,11 @@ const markerPosition = ref(mapCenter)
 
 const ticketData = ref({
   header: '',
-  description: '',
+  description: ''
 })
 
+const imageFile = ref(null)
+const previewImage = ref(null)
 const errors = ref({})
 
 function validateField(field) {
@@ -93,21 +112,70 @@ function handleMapClick(event) {
   markerPosition.value = { lat: event.latLng.lat(), lng: event.latLng.lng() }
 }
 
+// Função para selecionar imagem
+function onFileChange(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // Validação de tipo e tamanho
+  if (!file.type.startsWith('image/')) {
+    toast.error('Por favor, selecione uma imagem válida.')
+    return
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    toast.error('A imagem deve ter no máximo 2MB.')
+    return
+  }
+
+  imageFile.value = file
+  previewImage.value = URL.createObjectURL(file)
+}
+
+function removeImage() {
+  imageFile.value = null
+  previewImage.value = null
+}
+
+// Envio do formulário com FormData
 async function createTicket() {
   try {
-    const dataToSend = {
-      header: ticketData.value.header,
-      description: ticketData.value.description,
-      localization: `${markerPosition.value.lat},${markerPosition.value.lng}`
-    }
-    const response = await api.post('/tickets', dataToSend)
+    let response
 
+    // Caso 1: sem imagem → envia JSON normal
+    if (!imageFile.value) {
+      const dataToSend = {
+        header: ticketData.value.header,
+        description: ticketData.value.description,
+        localization: `${markerPosition.value.lat},${markerPosition.value.lng}`
+      }
+
+      response = await api.post('/tickets', dataToSend)
+
+    } else {
+      // Caso 2: com imagem → envia FormData
+      const dataToSend = new FormData()
+      dataToSend.append('header', ticketData.value.header)
+      dataToSend.append('description', ticketData.value.description)
+      dataToSend.append('localization', `${markerPosition.value.lat},${markerPosition.value.lng}`)
+      dataToSend.append('image', imageFile.value)
+
+      response = await api.post('/tickets', dataToSend, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+    }
+
+    // Sucesso 🎉
     toast.success('Solicitação enviada com sucesso!')
     console.log('Ticket criado:', response.data)
 
+    // Limpa os campos
     ticketData.value.header = ''
     ticketData.value.description = ''
+    imageFile.value = null
+    previewImage.value = null
     errors.value = {}
+
   } catch (error) {
     console.error('Erro ao criar a solicitação:', error)
     const errorMessage = error.response?.data?.message || 'Não foi possível enviar a solicitação.'
@@ -115,6 +183,7 @@ async function createTicket() {
   }
 }
 </script>
+
 
 <style scoped>
 .page {
@@ -219,5 +288,36 @@ input.invalid, textarea.invalid {
 /* Responsivo */
 @media (max-width: 820px) {
   .card { padding: 1.25rem; }
+}
+
+.preview {
+  margin-top: .5rem;
+  max-width: 320px;
+  position: relative;
+}
+
+.preview img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
+.btn-remove {
+  margin-top: .5rem;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: .35rem .8rem;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  align-self: flex-start;
+  transition: filter .2s;
+}
+
+.btn-remove:hover {
+  filter: brightness(1.1);
 }
 </style>
