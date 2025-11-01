@@ -41,6 +41,7 @@ services:
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
+      - ./uploads:/usr/src/app/uploads
     networks:
       - reparai-net
 

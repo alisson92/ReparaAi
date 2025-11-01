@@ -5,8 +5,15 @@ class TicketService {
     /**
      * Busca todos os tickets no banco de dados.
      */
-async findAllTickets(userId) { // A função agora recebe o ID do usuário para buscar apenas os tickets do usuário logado através de um where no banco de dados.
-    return await Ticket.findAll({ where: { idUser: userId } });
+async findAllTickets(userId) {
+  return await Ticket.findAll({
+    where: { idUser: userId },
+    include: {
+      model: User,
+      as: 'user', // 🔥 ESSENCIAL! precisa bater com o alias em database.js
+      attributes: ['name', 'email']
+    }
+  });
 }
 
     /**
@@ -22,24 +29,26 @@ async findAllTickets(userId) { // A função agora recebe o ID do usuário para 
      * @param {object} ticketData Os dados do ticket vindos do formulário.
      * @param {number} userId O ID do usuário vindo do token de autenticação.
      */
-    async createTicket(ticketData, userId) {
-        // Buscamos o usuário no banco para garantir que ele existe e para pegar o email
-        const user = await User.findByPk(userId);
-        if (!user) {
-            throw new Error("Usuário da autenticação não encontrado no banco de dados.");
-        }
 
-        // Montamos o objeto final para salvar no banco,
-        // combinando os dados do formulário com os dados seguros do usuário.
-        const dataToSave = {
-            ...ticketData,
-            idUser: user.idUser, // Vindo do token
-            email: user.email    // Vindo do banco de dados
-        };
+async createTicket(ticketData, userId, file) {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new Error("Usuário da autenticação não encontrado no banco de dados.");
+  }
 
-        // Criamos o ticket
-        return await Ticket.create(dataToSave);
-    }
+  const dataToSave = {
+    ...ticketData,
+    idUser: user.idUser,
+    email: user.email,
+    name: user.name
+  };
+
+  if (file) {
+    dataToSave.image = `/uploads/${file.filename}`;
+  }
+
+  return await Ticket.create(dataToSave);
+}
 
     /**
      * Deleta um ticket do banco de dados pelo ID.
