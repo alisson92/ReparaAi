@@ -26,3 +26,6 @@ Thumbs.db
 
 # Arquivos do editor VSCode
 .vscode/
+
+# Ignorar uploads locais
+uploads/
