@@ -37,31 +37,41 @@
         Nenhuma solicitação encontrada. Seja o primeiro a criar uma!
       </div>
 
-      <!-- Lista -->
-      <div v-else class="tickets-list">
-        <RouterLink
-          v-for="ticket in filteredTickets"
-          :key="ticket.idTicket"
-          :to="'/solicitacao/' + ticket.idTicket"
-          class="ticket-link"
-        >
-          <article class="ticket-card">
-            <header class="ticket-header">
-              <h2 class="ticket-title">{{ ticket.header }}</h2>
-              <span class="status" :class="ticket.status || 'aberto'">
-                {{ formatStatus(ticket.status) }}
-              </span>
-            </header>
+<!-- Lista -->
+<div v-else class="tickets-list">
+  <RouterLink
+    v-for="ticket in filteredTickets"
+    :key="ticket.idTicket"
+    :to="'/solicitacao/' + ticket.idTicket"
+    class="ticket-link"
+  >
+    <article class="ticket-card">
+      <header class="ticket-header">
+        <h2 class="ticket-title">{{ ticket.header }}</h2>
+        <span class="status" :class="ticket.status || 'aberto'">
+          {{ formatStatus(ticket.status) }}
+        </span>
+      </header>
 
-            <p class="ticket-desc">{{ ticket.description }}</p>
-
-            <footer class="ticket-footer">
-              <span>📧 {{ ticket.email || '—' }}</span>
-              <span>📅 {{ formatDate(ticket.createdAt) }}</span>
-            </footer>
-          </article>
-        </RouterLink>
+      <!-- 🖼️ Miniatura da imagem -->
+      <div v-if="ticket.image" class="ticket-thumb">
+        <img
+          :src="`http://localhost:3000${ticket.image}`"
+          alt="Imagem da solicitação"
+          class="ticket-thumb__img"
+        />
       </div>
+
+      <!-- Descrição -->
+      <p class="ticket-desc">{{ ticket.description }}</p>
+
+      <footer class="ticket-footer">
+        <span>👤 {{ ticket.user?.name || '—' }}</span>
+        <span>📅 {{ formatDate(ticket.createdAt) }}</span>
+      </footer>
+    </article>
+  </RouterLink>
+</div>
     </div>
   </div>
 </template>
@@ -78,7 +88,11 @@ const searchQuery = ref('')
 
 onMounted(async () => {
   try {
+    console.log('Token atual:', localStorage.getItem('authToken'));
     const response = await api.get('/tickets')
+
+    console.log('📦 Resposta completa da API:', response.data);
+    
     tickets.value = (response.data.Tickets || []).map(t => ({
       ...t,
       status: t.status || 'aberto'
@@ -298,5 +312,28 @@ function formatStatus(status) {
 @media (max-width: 860px) {
   .home__header { flex-direction: column; align-items: stretch; }
   .btn--cta { width: 100%; height: 44px; }
+}
+
+/* Miniatura da imagem */
+.ticket-thumb {
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ticket-thumb__img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.ticket-thumb__img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 </style>

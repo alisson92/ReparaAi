@@ -1,135 +1,101 @@
 const TicketSer = require('../services/ticketService');
-const TicketService = new TicketSer()
+const TicketService = new TicketSer();
 
 class TicketController {
 
-    /**
-     * @async
-     */
-async findAllTickets(req, res) {
+  // 📦 Buscar todos os tickets do usuário logado
+  async findAllTickets(req, res) {
     try {
-        // 1. Pegamos o ID do usuário que o authMiddleware nos deu
-        const userIdFromToken = req.userId;
+      const userIdFromToken = req.userId;
+      const findAll = await TicketService.findAllTickets(userIdFromToken);
 
-        // 2. Passamos esse ID para a função do service
-        const findAll = await TicketService.findAllTickets(userIdFromToken);
+      // 🔹 Se o retorno for nulo ou erro silencioso, evita quebrar o frontend
+      if (!findAll || findAll.length === 0) {
+        return res.status(200).json({ Tickets: [] });
+      }
 
-        if (findAll.length === 0) {
-            return res.status(200).json({ // Mudamos para 200 OK, pois não é um erro, a lista está apenas vazia
-                Tickets: []
-            });
-        } else {
-            return res.status(200).json({
-                Tickets: findAll
-            });
-        }
+      // 🔹 Retorno consistente com o esperado pelo frontend
+      return res.status(200).json({ Tickets: findAll });
+
     } catch (e) {
-        return res.status(400).json({
-            Error: e.message
-        });
+      console.error("Erro ao buscar tickets:", e.message);
+      return res.status(400).json({ Error: e.message });
     }
-}
+  }
 
-    /**
-     * @async
-     * @param { idTicket } req.params
-     */
-    async findTicketByPk(req, res) {
-        try {
-            const { idTicket } = req.params;
-            const ticketData = await TicketService.findTicketByPk(idTicket);
-
-            if (!ticketData) {
-                return res.status(404).json({
-                    message: "Ticket not found"
-                });
-            } else {
-                return res.status(200).json({
-                    Ticket: ticketData
-                });
-            }
-        } catch (e) {
-            return res.status(400).json({
-                Error: e.message
-            });
-        }
-    }
-
-    /**
-     * @async
-     * @param { ticketData } req.body
-     */
-async createTicket(req, res) {
+  // 🔍 Buscar um ticket específico
+  async findTicketByPk(req, res) {
     try {
-        const ticketDataFromForm = req.body;
-        // Pegamos o ID do usuário que o authMiddleware colocou no 'req'
-        const userIdFromToken = req.userId; 
+      const { idTicket } = req.params;
+      const ticketData = await TicketService.findTicketByPk(idTicket);
 
-        // Passamos os dados do formulário E o ID do usuário para o service
-        const ticketCreated = await TicketService.createTicket(ticketDataFromForm, userIdFromToken);
-        
-        return res.status(201).json({
-            Created: ticketCreated
-        });
+      if (!ticketData) {
+        return res.status(404).json({ message: 'Ticket not found' });
+      }
+
+      return res.status(200).json({ Ticket: ticketData });
     } catch (e) {
-        console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
-        return res.status(400).json({
-            Error: e.message
-        });
+      console.error("Erro ao buscar ticket:", e.message);
+      return res.status(400).json({ Error: e.message });
     }
-}
+  }
 
-    /**
-     * @async
-     * @param { idTicket } req.params
-     */
-    async deleteTicket(req, res) {
-        try {
-            const { idTicket } = req.params;
+  // 🧾 Criar um novo ticket
+  async createTicket(req, res) {
+    try {
+      const ticketDataFromForm = req.body;
+      const userIdFromToken = req.userId;
+      const file = req.file || null;
 
-            if (!idTicket) {
-                return res.status(404).json({
-                    message: "Ticket not found"
-                });
-            } else {
-                const deletedTicket = await TicketService.deleteTicket(idTicket);
-                return res.status(200).json({
-                    Deleted: deletedTicket
-                });
-            }
-        } catch (e) {
-            return res.status(400).json({
-                Error: e.message
-            });
-        }
+      const ticketCreated = await TicketService.createTicket(
+        ticketDataFromForm,
+        userIdFromToken,
+        file
+      );
+
+      return res.status(201).json({ Created: ticketCreated });
+    } catch (e) {
+      console.error("ERRO DETALHADO AO CRIAR TICKET:", e);
+      return res.status(400).json({ Error: e.message });
     }
+  }
 
-    /**
-     * @param { idTicket } req.params
-     * @param { ticketData } req.body
-     */
-    async updateTicket(req, res) {
-        try {
-            const { idTicket } = req.params;
-            const ticketData = req.body;
+  // 🗑️ Deletar ticket
+  async deleteTicket(req, res) {
+    try {
+      const { idTicket } = req.params;
 
-            if (!idTicket) {
-                return res.status(404).json({
-                    message: "Ticket not found"
-                });
-            } else {
-                await TicketService.updateTicket(idTicket, ticketData);
-                const result = await TicketService.findTicketByPk(idTicket);
-                return res.status(200).json({
-                    Updated: result
-                });
-            }
-        } catch (e) {
-            return res.status(400).json({
-                Error: e.message
-            });
-        }
+      if (!idTicket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+      }
+
+      const deletedTicket = await TicketService.deleteTicket(idTicket);
+      return res.status(200).json({ Deleted: deletedTicket });
+    } catch (e) {
+      console.error("Erro ao deletar ticket:", e.message);
+      return res.status(400).json({ Error: e.message });
     }
+  }
+
+  // ✏️ Atualizar ticket existente
+  async updateTicket(req, res) {
+    try {
+      const { idTicket } = req.params;
+      const ticketData = req.body;
+
+      if (!idTicket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+      }
+
+      await TicketService.updateTicket(idTicket, ticketData);
+      const result = await TicketService.findTicketByPk(idTicket);
+
+      return res.status(200).json({ Updated: result });
+    } catch (e) {
+      console.error("Erro ao atualizar ticket:", e.message);
+      return res.status(400).json({ Error: e.message });
+    }
+  }
 }
 
 module.exports = TicketController;
