@@ -74,6 +74,13 @@ module.exports = (sequelize) => {
             type: DataTypes.DECIMAL(10, 8),
             allowNull: true,
         },
+
+        // --- NOVO CAMPO DE PERFIL ---
+        role: {
+            type: DataTypes.ENUM('user', 'admin'),
+            allowNull: false,
+            defaultValue: 'user',
+    },
     }, {
         hooks: {
             beforeSave: async (user) => {

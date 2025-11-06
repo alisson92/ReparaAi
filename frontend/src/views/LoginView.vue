@@ -59,6 +59,7 @@ import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import api from '../services/api'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { jwtDecode } from 'jwt-decode'
 
 const credentials = ref({ email: '', password: '' })
 const errors = ref({})
@@ -78,6 +79,22 @@ async function handleLogin() {
     const response = await api.post('/login', credentials.value)
     const token = response.data.token
     localStorage.setItem('authToken', token)
+
+    // tenta pegar user.role do backend
+    const user = response.data.user || {}
+    let role = user.role
+
+    // se não veio, tenta decodificar o token
+    if (!role) {
+      try {
+        const decoded = jwtDecode(token)
+        role = decoded?.role || (decoded?.isAdmin ? 'admin' : 'user')
+      } catch {
+        role = 'user'
+      }
+    }
+
+    localStorage.setItem('userRole', role)
     toast.success('Login realizado com sucesso!')
     router.push('/')
   } catch (error) {

@@ -6,66 +6,43 @@ import TicketDetailView from '@/views/TicketDetailView.vue'
 import TicketEditView from '@/views/TicketEditView.vue'
 import LoginView from '@/views/LoginView.vue'
 
+// nova importação
+const AdminDashboardView = () => import('@/views/AdminDashboardView.vue')
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-      meta: { requiresAuth: true } // Esta rota precisa de login
-    },
-    {
-      path: '/cadastro',
-      name: 'cadastro',
-      component: CadastroView
-      // Rota pública, não precisa de login
-    },
-    {
-      path: '/solicitacao',
-      name: 'solicitacao',
-      component: SolicitacaoView,
-      meta: { requiresAuth: true } // Esta rota precisa de login
-    },
-    {
-      path: '/solicitacao/:idTicket',
-      name: 'ticket-detalhes',
-      component: TicketDetailView,
-      meta: { requiresAuth: true } // Esta rota precisa de login
-    },
-    {
-      path: '/solicitacao/:idTicket/edit',
-      name: 'ticket-editar',
-      component: TicketEditView,
-      meta: { requiresAuth: true } // Esta rota precisa de login
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: LoginView
-      // Rota pública
+    { path: '/', name: 'home', component: HomeView, meta: { requiresAuth: true } },
+    { path: '/cadastro', name: 'cadastro', component: CadastroView },
+    { path: '/solicitacao', name: 'solicitacao', component: SolicitacaoView, meta: { requiresAuth: true } },
+    { path: '/solicitacao/:idTicket', name: 'ticket-detalhes', component: TicketDetailView, meta: { requiresAuth: true } },
+    { path: '/solicitacao/:idTicket/edit', name: 'ticket-editar', component: TicketEditView, meta: { requiresAuth: true } },
+    { path: '/login', name: 'login', component: LoginView },
+
+    // 🧩 nova rota
+    { 
+      path: '/admin', 
+      name: 'admin', 
+      component: AdminDashboardView, 
+      meta: { requiresAuth: true, requiresAdmin: true }
     }
   ]
-});
+})
 
-// --- O GUARDA DE NAVEGAÇÃO ---
+// --- Guarda de navegação atualizado ---
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('authToken'); // Verifica se o token existe
+  const token = localStorage.getItem('authToken')
+  const role = localStorage.getItem('userRole')
 
-  // Se a rota que o usuário quer acessar (to) precisa de autenticação E ele não está autenticado
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    // Redireciona para a página de login
-    next({ name: 'login' });
-  } 
-  // Se o usuário está autenticado e tenta acessar a página de login
-  else if (!to.meta.requiresAuth && isAuthenticated && to.name === 'login') {
-    // Redireciona para a home, pois ele já está logado
-    next({ name: 'home' });
+  if (to.meta.requiresAuth && !token) {
+    next({ name: 'login' })
+  } else if (!to.meta.requiresAuth && token && to.name === 'login') {
+    next({ name: 'home' })
+  } else if (to.meta.requiresAdmin && role !== 'admin') {
+    next({ name: 'home' })
+  } else {
+    next()
   }
-  else {
-    // Se nenhuma das condições acima for atendida, deixa o usuário prosseguir
-    next();
-  }
-});
+})
 
-export default router;
+export default router
