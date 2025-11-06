@@ -46,35 +46,38 @@ class UserService {
 
     // --- NOSSA NOVA FUNÇÃO DE LOGIN ---
     async login(email, password) {
-        // 1. Encontrar o usuário pelo email
         const user = await User.findOne({ where: { email } });
         if (!user) {
-            // Se não encontrar o usuário, lançamos um erro
             throw new Error('Usuário não encontrado ou senha inválida.');
         }
 
-        // 2. Comparar a senha enviada com o hash salvo no banco
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
-            // Se as senhas não baterem, lançamos um erro (com mensagem genérica por segurança)
             throw new Error('Usuário não encontrado ou senha inválida.');
         }
 
-        // 3. Se tudo estiver correto, gerar o Token JWT
-        const payload = { idUser: user.idUser, name: user.name };
+        // 🔹 Incluímos o campo role no payload do token
+        const payload = {
+            idUser: user.idUser,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
+
         const secret = process.env.JWT_SECRET;
-        const options = { expiresIn: process.env.JWT_EXPIRES_IN };
+        const options = { expiresIn: process.env.JWT_EXPIRES_IN || '1d' };
 
         const token = jwt.sign(payload, secret, options);
 
-        // 4. Retornar os dados do usuário e o token
-        return { 
+        // 🔹 Retornamos também o role no JSON de resposta
+        return {
             user: {
                 idUser: user.idUser,
                 name: user.name,
-                email: user.email
-            }, 
-            token 
+                email: user.email,
+                role: user.role, // 👈 incluído aqui também
+            },
+            token,
         };
     }
     // --- FIM DA FUNÇÃO DE LOGIN ---

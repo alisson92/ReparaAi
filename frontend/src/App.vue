@@ -9,12 +9,18 @@
         <span>Usuário: {{ userName || 'Carregando...' }}</span>
       </div>
     </div>
+
     <nav class="main-nav">
       <template v-if="isLoggedIn">
         <RouterLink to="/">Acompanhamento</RouterLink>
         <RouterLink to="/solicitacao">Registro de Ocorrências</RouterLink>
+
+        <!-- 🔹 Link exibido apenas para administradores -->
+        <RouterLink v-if="isAdmin" to="/admin">Administração</RouterLink>
+
         <a href="#" @click.prevent="handleLogout" class="logout-link">Sair</a>
       </template>
+
       <template v-else>
         <RouterLink to="/login">Login</RouterLink>
         <RouterLink to="/cadastro">Cadastro</RouterLink>
@@ -28,50 +34,55 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
-import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
-import { jwtDecode } from 'jwt-decode';
+import { ref, onMounted, watch, computed } from 'vue'
+import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
 
-const router = useRouter();
-const route = useRoute();
-const isLoggedIn = ref(false);
-const userName = ref(null);
+const router = useRouter()
+const route = useRoute()
+const isLoggedIn = ref(false)
+const isAdmin = ref(localStorage.getItem('userRole') === 'admin')
+const userName = ref(null)
 
-// 3. Crie a propriedade computada
-// Ela vai verificar o nome da rota atual e retornar true/false
 const isNavVisible = computed(() => {
-  const hiddenRoutes = ['login', 'cadastro'];
-  return !hiddenRoutes.includes(route.name);
-});
+  const hiddenRoutes = ['login', 'cadastro']
+  return !hiddenRoutes.includes(route.name)
+})
 
 const mainContentPadding = computed(() => {
-  return isNavVisible.value ? '2rem' : '0';
-});
+  return isNavVisible.value ? '2rem' : '0'
+})
 
 function checkAuthStatus() {
-  const token = localStorage.getItem('authToken');
-  isLoggedIn.value = !!token;
+  const token = localStorage.getItem('authToken')
+  isLoggedIn.value = !!token
+
   if (token) {
     try {
-      const decodedToken = jwtDecode(token);
-      userName.value = decodedToken.name; // Pega o nome do usuário do token
+      const decodedToken = jwtDecode(token)
+      userName.value = decodedToken.name || 'Usuário'
+      const role = decodedToken.role || 'user'
+      isAdmin.value = role === 'admin'
+      localStorage.setItem('userRole', role)
     } catch (error) {
-      console.error("Erro ao decodificar o token:", error);
-      handleLogout(); // Se o token for inválido, faz o logout
+      console.error('Erro ao decodificar o token:', error)
+      handleLogout()
     }
   } else {
-    userName.value = null;
+    userName.value = null
+    isAdmin.value = false
   }
 }
 
 function handleLogout() {
-  localStorage.removeItem('authToken');
-  checkAuthStatus();
-  router.push('/login');
+  localStorage.removeItem('authToken')
+  localStorage.removeItem('userRole')
+  checkAuthStatus()
+  router.push('/login')
 }
 
-onMounted(checkAuthStatus);
-watch(route, checkAuthStatus);
+onMounted(checkAuthStatus)
+watch(route, checkAuthStatus)
 </script>
 
 <style scoped>
@@ -106,14 +117,15 @@ watch(route, checkAuthStatus);
   transition: background-color 0.3s;
   font-weight: 500;
 }
-.main-nav a:hover, .main-nav a.router-link-exact-active {
+.main-nav a:hover,
+.main-nav a.router-link-exact-active {
   background-color: rgba(255, 255, 255, 0.3);
 }
 .logout-link {
   background-color: rgba(220, 53, 69, 0.7) !important;
 }
 .logout-link:hover {
-   background-color: rgba(220, 53, 69, 1) !important;
+  background-color: rgba(220, 53, 69, 1) !important;
 }
 .main-content {
   padding: v-bind(mainContentPadding);
