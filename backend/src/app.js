@@ -27,12 +27,54 @@ app.use((req, res) => {
 });
 
 // Conexão com o banco e inicialização do servidor
-db
-  .sync({ alter: true })
-  .then(() => {
-    app.listen(port, () => {
+db.sync({ alter: true })
+  .then(async () => {
+    app.listen(port, async () => {
       console.log(`✅ Server running on port ${port}`);
       console.log(`🖼️  Imagens acessíveis via: http://localhost:${port}/uploads/<nome-do-arquivo>`);
+
+      // =======================================================
+      // 🔹 CRIA OU SINCRONIZA USUÁRIO ADMIN PADRÃO
+      // =======================================================
+      try {
+        const { User } = require('./config/database');
+        const bcrypt = require('bcryptjs');
+        const adminEmail = 'admin@reparaai.com';
+        const plainPassword = 'admin123';
+
+        let admin = await User.findOne({ where: { email: adminEmail } });
+
+        if (!admin) {
+          await User.create({
+            name: 'Administrador',
+            email: adminEmail,
+            password: plainPassword, // será hashada pelo hook
+            cpf: '00000000000',
+            phone: '00000000000',
+            birthDate: new Date('1990-01-01'),
+            cep: '00000-000',
+            street: 'Rua Principal',
+            number: '1',
+            neighborhood: 'Centro',
+            city: 'Taquaritinga',
+            state: 'SP',
+            role: 'admin',
+          });
+          console.log('✅ Usuário admin criado (admin@reparaai.com / admin123)');
+        } else {
+          const isValid = await bcrypt.compare(plainPassword, admin.password);
+          if (!isValid) {
+            admin.password = plainPassword;
+            await admin.save();
+            console.log('🔄 Senha do admin redefinida para padrão (admin123)');
+          } else {
+            console.log('ℹ️ Usuário admin já existe e está válido.');
+          }
+          console.log('👑 Admin OK - pronto para login em http://localhost:5174');
+        }
+      } catch (error) {
+        console.error('❌ Erro ao criar/sincronizar admin:', error);
+      }
     });
   })
   .catch((e) => {

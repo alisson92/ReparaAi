@@ -41,7 +41,7 @@ import { jwtDecode } from 'jwt-decode'
 const router = useRouter()
 const route = useRoute()
 const isLoggedIn = ref(false)
-const isAdmin = ref(false)
+const isAdmin = ref(localStorage.getItem('userRole') === 'admin')
 const userName = ref(null)
 
 const isNavVisible = computed(() => {
@@ -55,14 +55,15 @@ const mainContentPadding = computed(() => {
 
 function checkAuthStatus() {
   const token = localStorage.getItem('authToken')
-  const role = localStorage.getItem('userRole')
   isLoggedIn.value = !!token
 
   if (token) {
     try {
       const decodedToken = jwtDecode(token)
       userName.value = decodedToken.name || 'Usuário'
-      isAdmin.value = role === 'admin' || decodedToken.role === 'admin'
+      const role = decodedToken.role || 'user'
+      isAdmin.value = role === 'admin'
+      localStorage.setItem('userRole', role)
     } catch (error) {
       console.error('Erro ao decodificar o token:', error)
       handleLogout()
